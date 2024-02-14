@@ -1,0 +1,24 @@
+[package]
+name = "holo"
+version = "0.1.0"
+authors = ["Chris Roberts"]
+edition = "2021"
+description = "Basic HTTP server for local hosting."
+repository = "https://github.com/krobbi/holo/"
+license = "MIT"
+keywords = ["http", "localhost", "server", "tcp", "web"]
+categories = [
+  "command-line-utilities",
+  "development-tools",
+  "filesystem",
+  "network-programming",
+  "web-programming::http-server",
+]
+publish = false
+
+[profile.release]
+codegen-units = 1
+lto = "fat"
+opt-level = 3
+panic = "abort"
+strip = "symbols"
