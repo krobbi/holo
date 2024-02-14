@@ -1,6 +1,8 @@
 use std::{
     io::{BufRead, BufReader, Write},
     net::{TcpListener, TcpStream},
+    thread,
+    time::Duration,
 };
 
 /// The content to respond with for an OK response.
@@ -24,10 +26,13 @@ fn handle_connection(mut stream: TcpStream) {
     let buf_reader = BufReader::new(&mut stream);
     let request_line = buf_reader.lines().next().unwrap().unwrap();
 
-    let (status_line, content) = if request_line == "GET / HTTP/1.1" {
-        ("HTTP/1.1 200 OK", OK_CONTENT)
-    } else {
-        ("HTTP/1.1 400 Not Found", NOT_FOUND_CONTENT)
+    let (status_line, content) = match &request_line[..] {
+        "GET / HTTP/1.1" => ("HTTP/1.1 200 OK", OK_CONTENT),
+        "GET /sleep HTTP/1.1" => {
+            thread::sleep(Duration::from_secs(5));
+            ("HTTP/1.1 200 OK", OK_CONTENT)
+        }
+        _ => ("HTTP/1.1 404 Not Found", NOT_FOUND_CONTENT),
     };
 
     let length = content.len();
