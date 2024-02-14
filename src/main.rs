@@ -1,4 +1,12 @@
-/// Print a hello world message.
+use std::net::TcpListener;
+
+/// Listen for TCP streams.
 fn main() {
-    println!("Hello, Holo!");
+    let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+
+    for stream in listener.incoming() {
+        let stream = stream.unwrap();
+
+        println!("Connection established!");
+    }
 }
