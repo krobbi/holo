@@ -14,9 +14,6 @@ headers so that cross-origin isolation can be tested.
 Using cross-origin isolation on a local server may not be allowed in some
 browsers without adjusting security settings.
 
-Holo is based on a project from the
-[Rust Book](https://doc.rust-lang.org/stable/book/ch20-00-final-project-a-web-server.html).
-
 # License
 Holo is released under the MIT License:  
 https://krobbi.github.io/license/2024/mit.txt
