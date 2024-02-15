@@ -52,9 +52,9 @@ fn serve_stream(mut stream: TcpStream) -> Result<()> {
 
 /// Respond to an HTTP request with an HTTP response.
 fn respond_to_request(request: &Request) -> Response {
-    match request.url() {
-        "/" => Response::new(Status::Ok, OK_CONTENT.to_vec()),
-        "/sleep" => {
+    match request.path() {
+        "" => Response::new(Status::Ok, OK_CONTENT.to_vec()),
+        "sleep" => {
             thread::sleep(Duration::from_secs(5));
             Response::new(Status::Ok, OK_CONTENT.to_vec())
         }

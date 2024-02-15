@@ -17,6 +17,9 @@ categories = [
 include = ["/src/htdocs/404.html", "/src/htdocs/index.html"]
 publish = false
 
+[dependencies]
+percent-encoding = "2.3.1"
+
 [profile.release]
 codegen-units = 1
 lto = "fat"

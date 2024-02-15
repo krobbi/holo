@@ -15,6 +15,9 @@ pub enum Error {
 
     /// TCP stream is not an HTTP request.
     StreamNotHttpRequest,
+
+    /// HTTP request path is not UTF-8.
+    RequestPathNotUtf8,
 }
 
 impl error::Error for Error {}
@@ -24,6 +27,7 @@ impl Display for Error {
         match self {
             Error::Io(error) => error.fmt(f),
             Error::StreamNotHttpRequest => write!(f, "Connection is not HTTP."),
+            Error::RequestPathNotUtf8 => write!(f, "Requested path is not UTF-8."),
         }
     }
 }
