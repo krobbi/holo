@@ -1,8 +1,8 @@
 mod error;
 mod request;
+mod response;
 
 use std::{
-    io::Write,
     net::{TcpListener, TcpStream},
     process, thread,
     time::Duration,
@@ -10,12 +10,13 @@ use std::{
 
 use error::Result;
 use request::Request;
+use response::{Response, Status};
 
 /// The content to respond with for an OK response.
-const OK_CONTENT: &str = include_str!("htdocs/index.html");
+const OK_CONTENT: &[u8] = include_str!("htdocs/index.html").as_bytes();
 
 /// The content to respond with for a not found response.
-const NOT_FOUND_CONTENT: &str = include_str!("htdocs/404.html");
+const NOT_FOUND_CONTENT: &[u8] = include_str!("htdocs/404.html").as_bytes();
 
 /// Handle errors from the Holo server.
 fn main() {
@@ -44,21 +45,19 @@ fn serve() -> Result<()> {
 /// Serve a TCP stream.
 fn serve_stream(mut stream: TcpStream) -> Result<()> {
     let request = Request::read(&stream)?;
-    let (status_line, content) = respond_to_request(&request);
-    let length = content.len();
-    let response = format!("{status_line}\r\nContent-Length: {length}\r\n\r\n{content}");
-    stream.write_all(response.as_bytes()).unwrap();
+    let response = respond_to_request(&request);
+    response.write(&mut stream)?;
     Ok(())
 }
 
-/// Create an HTTP response using an HTTP request.
-fn respond_to_request(request: &Request) -> (&'static str, &'static str) {
+/// Respond to an HTTP request with an HTTP response.
+fn respond_to_request(request: &Request) -> Response {
     match request.url() {
-        "/" => ("HTTP/1.1 200 OK", OK_CONTENT),
+        "/" => Response::new(Status::Ok, OK_CONTENT.to_vec()),
         "/sleep" => {
             thread::sleep(Duration::from_secs(5));
-            ("HTTP/1.1 200 OK", OK_CONTENT)
+            Response::new(Status::Ok, OK_CONTENT.to_vec())
         }
-        _ => ("HTTP/1.1 404 Not Found", NOT_FOUND_CONTENT),
+        _ => Response::new(Status::NotFound, NOT_FOUND_CONTENT.to_vec()),
     }
 }
