@@ -9,6 +9,9 @@ pub enum Status {
 
     /// The server cannot find the requested resource.
     NotFound,
+
+    /// The server has encountered a situation it does not know how to handle.
+    InternalServerError,
 }
 
 impl Status {
@@ -17,6 +20,7 @@ impl Status {
         match self {
             Status::Ok => 200,
             Status::NotFound => 404,
+            Status::InternalServerError => 500,
         }
     }
 
@@ -25,6 +29,7 @@ impl Status {
         match self {
             Status::Ok => "OK",
             Status::NotFound => "Not Found",
+            Status::InternalServerError => "Internal Server Error",
         }
     }
 }

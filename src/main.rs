@@ -1,19 +1,18 @@
 mod error;
 mod request;
 mod response;
+mod router;
 
 use std::{
     net::{TcpListener, TcpStream},
-    process, thread,
-    time::Duration,
+    path::PathBuf,
+    process,
 };
 
 use error::Result;
 use request::Request;
-use response::{Response, Status};
-
-/// The content to respond with for an OK response.
-const OK_CONTENT: &[u8] = include_str!("htdocs/index.html").as_bytes();
+use response::Response;
+use router::read_file;
 
 /// Handle errors from the Holo server.
 fn main() {
@@ -49,12 +48,10 @@ fn serve_stream(mut stream: TcpStream) -> Result<()> {
 
 /// Respond to an HTTP request with an HTTP response.
 fn respond_to_request(request: &Request) -> Response {
-    match request.path() {
-        "" => Response::ok(OK_CONTENT.to_vec()),
-        "sleep" => {
-            thread::sleep(Duration::from_secs(5));
-            Response::ok(OK_CONTENT.to_vec())
-        }
-        _ => Response::error(Status::NotFound),
+    let path = PathBuf::from(request.path());
+
+    match read_file(&path) {
+        Ok(content) => Response::ok(content),
+        Err(status) => Response::error(status),
     }
 }

@@ -14,7 +14,6 @@ categories = [
   "network-programming",
   "web-programming::http-server",
 ]
-include = ["/src/htdocs/index.html"]
 publish = false
 
 [dependencies]
