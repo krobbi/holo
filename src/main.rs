@@ -15,9 +15,6 @@ use response::{Response, Status};
 /// The content to respond with for an OK response.
 const OK_CONTENT: &[u8] = include_str!("htdocs/index.html").as_bytes();
 
-/// The content to respond with for a not found response.
-const NOT_FOUND_CONTENT: &[u8] = include_str!("htdocs/404.html").as_bytes();
-
 /// Handle errors from the Holo server.
 fn main() {
     if let Err(error) = serve() {
@@ -53,11 +50,11 @@ fn serve_stream(mut stream: TcpStream) -> Result<()> {
 /// Respond to an HTTP request with an HTTP response.
 fn respond_to_request(request: &Request) -> Response {
     match request.path() {
-        "" => Response::new(Status::Ok, OK_CONTENT.to_vec()),
+        "" => Response::ok(OK_CONTENT.to_vec()),
         "sleep" => {
             thread::sleep(Duration::from_secs(5));
-            Response::new(Status::Ok, OK_CONTENT.to_vec())
+            Response::ok(OK_CONTENT.to_vec())
         }
-        _ => Response::new(Status::NotFound, NOT_FOUND_CONTENT.to_vec()),
+        _ => Response::error(Status::NotFound),
     }
 }

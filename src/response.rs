@@ -39,8 +39,23 @@ pub struct Response {
 }
 
 impl Response {
-    /// Create a new HTTP response.
-    pub fn new(status: Status, content: Vec<u8>) -> Response {
+    /// Create a new HTTP OK response from content.
+    pub fn ok(content: Vec<u8>) -> Response {
+        let status = Status::Ok;
+        Response { status, content }
+    }
+
+    /// Create a new HTTP error response from a status.
+    pub fn error(status: Status) -> Response {
+        let code = status.code();
+        let reason = status.reason();
+
+        debug_assert!(
+            (400..=599).contains(&code),
+            "Status '{code} {reason}' is not an error."
+        );
+
+        let content = format!("{code} {reason}\r\n").as_bytes().to_vec();
         Response { status, content }
     }
 
