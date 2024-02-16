@@ -1,4 +1,4 @@
-use std::{io::Write, net::TcpStream};
+use std::{collections::HashMap, io::Write, net::TcpStream};
 
 use crate::error::Result;
 
@@ -39,6 +39,9 @@ pub struct Response {
     /// The response status.
     status: Status,
 
+    /// The header fields.
+    fields: HashMap<&'static str, String>,
+
     /// The content.
     content: Vec<u8>,
 }
@@ -47,7 +50,7 @@ impl Response {
     /// Create a new HTTP OK response from content.
     pub fn ok(content: Vec<u8>) -> Response {
         let status = Status::Ok;
-        Response { status, content }
+        Response::new(status, content)
     }
 
     /// Create a new HTTP error response from a status.
@@ -61,7 +64,7 @@ impl Response {
         );
 
         let content = format!("{code} {reason}\r\n").as_bytes().to_vec();
-        Response { status, content }
+        Response::new(status, content)
     }
 
     /// Write the HTTP response to a TCP stream.
@@ -70,31 +73,38 @@ impl Response {
         Ok(())
     }
 
-    /// Get the header.
-    fn header(&self) -> String {
-        let status_line = self.status_line();
-        let header_fields = self.header_fields();
-        format!("{status_line}\r\n{header_fields}\r\n\r\n")
+    /// Create a new HTTP response from a status and content.
+    fn new(status: Status, content: Vec<u8>) -> Response {
+        let fields = HashMap::new();
+        let mut response = Response {
+            status,
+            fields,
+            content,
+        };
+        response.insert_field("Connection", "close".to_string());
+        response.insert_field("Content-Length", response.content.len().to_string());
+        response
     }
 
-    /// Get the status line.
-    fn status_line(&self) -> String {
+    /// Insert a header field into the HTTP response.
+    fn insert_field(&mut self, key: &'static str, value: String) {
+        self.fields.insert(key, value);
+    }
+
+    /// Get the HTTP response as a byte vector.
+    fn to_vec(&self) -> Vec<u8> {
         let status = &self.status;
         let code = status.code();
         let reason = status.reason();
-        format!("HTTP/1.1 {code} {reason}")
-    }
+        let mut data = format!("HTTP/1.1 {code} {reason}\r\n");
 
-    /// Get the header fields.
-    fn header_fields(&self) -> String {
-        let length = self.content.len();
-        format!("Content-Length: {length}")
-    }
+        for (key, value) in &self.fields {
+            data.push_str(format!("{key}: {value}\r\n").as_str());
+        }
 
-    /// Convert the HTTP response to a byte vector.
-    fn to_vec(&self) -> Vec<u8> {
-        let mut bytes = self.header().as_bytes().to_vec();
-        bytes.append(&mut self.content.clone());
-        bytes
+        data.push_str("\r\n");
+        let mut data = data.as_bytes().to_vec();
+        data.extend_from_slice(&self.content);
+        data
     }
 }
