@@ -130,7 +130,6 @@ impl Response {
             response.insert_field("Content-Type", mime.essence_str().to_string());
         }
 
-        response.enable_cross_origin_isolation();
         response
     }
 

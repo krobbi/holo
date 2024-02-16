@@ -1,3 +1,4 @@
+mod config;
 mod error;
 mod request;
 mod response;
@@ -9,6 +10,7 @@ use std::{
     process,
 };
 
+use config::Config;
 use error::Result;
 use request::Request;
 use response::Response;
@@ -16,21 +18,22 @@ use router::read_file;
 
 /// Handle errors from the Holo server.
 fn main() {
-    if let Err(error) = serve() {
+    if let Err(error) = run() {
         eprintln!("{error}");
         process::exit(1);
     }
 }
 
 /// Run the Holo server.
-fn serve() -> Result<()> {
-    eprintln!("Holo - Basic HTTP server for local hosting.\nUse Ctrl+C to exit.");
+fn run() -> Result<()> {
+    let config = Config::new();
     let listener = TcpListener::bind("127.0.0.1:7878")?;
+    eprintln!("Holo - Basic HTTP server for local hosting.\nUse Ctrl+C to exit.");
 
     for stream in listener.incoming() {
         let stream = stream?;
 
-        if let Err(error) = serve_stream(stream) {
+        if let Err(error) = serve(stream, &config) {
             eprintln!("[Error] {error}");
         }
     }
@@ -39,19 +42,25 @@ fn serve() -> Result<()> {
 }
 
 /// Serve a TCP stream.
-fn serve_stream(mut stream: TcpStream) -> Result<()> {
+fn serve(mut stream: TcpStream, config: &Config) -> Result<()> {
     let request = Request::read(&stream)?;
-    let response = respond_to_request(&request);
+    let response = respond(&request, config);
     response.write(&mut stream)?;
     Ok(())
 }
 
 /// Respond to an HTTP request with an HTTP response.
-fn respond_to_request(request: &Request) -> Response {
+fn respond(request: &Request, config: &Config) -> Response {
     let path = PathBuf::from(request.path());
 
-    match read_file(path) {
+    let mut response = match read_file(path) {
         Ok(content) => Response::ok(content),
         Err(status) => Response::error(status),
+    };
+
+    if config.cross_origin_isolation() {
+        response.enable_cross_origin_isolation();
     }
+
+    response
 }

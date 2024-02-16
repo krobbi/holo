@@ -17,6 +17,7 @@ categories = [
 publish = false
 
 [dependencies]
+clap = { version = "4.5.1", features = ["cargo"] }
 new_mime_guess = "4.0.1"
 percent-encoding = "2.3.1"
 
