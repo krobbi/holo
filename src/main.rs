@@ -27,8 +27,10 @@ fn main() {
 /// Run the Holo server.
 fn run() -> Result<()> {
     let config = Config::new();
-    let listener = TcpListener::bind("127.0.0.1:7878")?;
-    eprintln!("Holo - Basic HTTP server for local hosting.\nUse Ctrl+C to exit.");
+    let port = config.port();
+    let listener = TcpListener::bind(("127.0.0.1", port))?;
+    eprintln!("Serving files at 'http://localhost:{port}/'...");
+    eprintln!("Use 'Ctrl+C' to exit.");
 
     for stream in listener.incoming() {
         let stream = stream?;

@@ -4,6 +4,7 @@ __Copyright &copy; 2024 Chris Roberts__ (Krobbizoid).
 
 # Contents
 1. [Usage](#usage)
+   * [Options](#options)
 2. [Dependencies](#dependencies)
 3. [License](#license)
 
@@ -18,18 +19,25 @@ holo [OPTIONS]
 ```
 
 Holo will serve files from the current working directory at
-`http://localhost:7878/...` until `Ctrl+C` is used to exit.
+`http://localhost:8080/` until `Ctrl+C` is used to exit.
 
 ## Options
-| Short | Long        | Usage                         |
-| :---- | :---------- | :---------------------------- |
-| `-i`  | `--coi`     | Enable cross-origin isolation |
-| `-h`  | `--help`    | Print help                    |
-| `-V`  | `--version` | Print version                 |
+| Short | Long        | Value    | Usage                         |
+| :---- | :---------- | :------- | :---------------------------- |
+| `-p`  | `--port`    | `<PORT>` | TCP port [default: 8080]      |
+| `-i`  | `--coi`     | _(None)_ | Enable cross-origin isolation |
+| `-h`  | `--help`    | _(None)_ | Print help                    |
+
+If the `--port` option is not set, the default port of `8080` will be used.
+Ports below `1024` are likely to be reserved or require administrator
+privileges.
 
 If the `--coi` flag is set, additional HTTP headers will be served to enable
 cross-origin isolation. Cross-origin isolation may not function correctly on
 local servers in some browsers.
+
+If the `--help` flags is set, Holo will print help information but not perform
+any action.
 
 # Dependencies
 Holo uses the following libraries:
