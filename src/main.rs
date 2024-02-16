@@ -50,7 +50,7 @@ fn serve_stream(mut stream: TcpStream) -> Result<()> {
 fn respond_to_request(request: &Request) -> Response {
     let path = PathBuf::from(request.path());
 
-    match read_file(&path) {
+    match read_file(path) {
         Ok(content) => Response::ok(content),
         Err(status) => Response::error(status),
     }

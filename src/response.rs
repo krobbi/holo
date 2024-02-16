@@ -1,4 +1,6 @@
-use std::{collections::HashMap, io::Write, net::TcpStream};
+use std::{collections::HashMap, io::Write, net::TcpStream, path::PathBuf};
+
+use new_mime_guess::Mime;
 
 use crate::error::Result;
 
@@ -34,6 +36,37 @@ impl Status {
     }
 }
 
+/// A file's content.
+pub struct Content {
+    /// The path.
+    path: PathBuf,
+
+    /// The data.
+    data: Vec<u8>,
+}
+
+impl Content {
+    /// Create new content from a path and data.
+    pub fn new(path: PathBuf, data: Vec<u8>) -> Content {
+        Content { path, data }
+    }
+
+    /// Get the MIME type.
+    fn mime(&self) -> Option<Mime> {
+        new_mime_guess::from_path(&self.path).first()
+    }
+
+    /// Get the data's length.
+    fn len(&self) -> usize {
+        self.data.len()
+    }
+
+    /// Get the data as a byte slice.
+    fn as_bytes(&self) -> &[u8] {
+        &self.data
+    }
+}
+
 /// An HTTP response.
 pub struct Response {
     /// The response status.
@@ -43,12 +76,12 @@ pub struct Response {
     fields: HashMap<&'static str, String>,
 
     /// The content.
-    content: Vec<u8>,
+    content: Content,
 }
 
 impl Response {
     /// Create a new HTTP OK response from content.
-    pub fn ok(content: Vec<u8>) -> Response {
+    pub fn ok(content: Content) -> Response {
         let status = Status::Ok;
         Response::new(status, content)
     }
@@ -63,7 +96,10 @@ impl Response {
             "Status '{code} {reason}' is not an error."
         );
 
-        let content = format!("{code} {reason}\r\n").as_bytes().to_vec();
+        let content = Content::new(
+            PathBuf::from(format!("{code}.txt")),
+            format!("{code} {reason}\r\n").as_bytes().to_vec(),
+        );
         Response::new(status, content)
     }
 
@@ -74,7 +110,7 @@ impl Response {
     }
 
     /// Create a new HTTP response from a status and content.
-    fn new(status: Status, content: Vec<u8>) -> Response {
+    fn new(status: Status, content: Content) -> Response {
         let fields = HashMap::new();
         let mut response = Response {
             status,
@@ -83,6 +119,11 @@ impl Response {
         };
         response.insert_field("Connection", "close".to_string());
         response.insert_field("Content-Length", response.content.len().to_string());
+
+        if let Some(mime) = response.content.mime() {
+            response.insert_field("Content-Type", mime.essence_str().to_string());
+        }
+
         response
     }
 
@@ -104,7 +145,7 @@ impl Response {
 
         data.push_str("\r\n");
         let mut data = data.as_bytes().to_vec();
-        data.extend_from_slice(&self.content);
+        data.extend_from_slice(self.content.as_bytes());
         data
     }
 }

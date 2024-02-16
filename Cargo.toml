@@ -17,6 +17,7 @@ categories = [
 publish = false
 
 [dependencies]
+new_mime_guess = "4.0.1"
 percent-encoding = "2.3.1"
 
 [profile.release]

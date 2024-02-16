@@ -17,6 +17,8 @@ browsers without adjusting security settings.
 
 # Dependencies
 Holo uses the following libraries:
+* [new_mime_guess](https://crates.io/crates/new_mime_guess) - MIME type
+inference.
 * [percent-encoding](https://crates.io/crates/percent-encoding) - Request path
 decoding.
 
