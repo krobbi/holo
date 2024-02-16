@@ -9,8 +9,8 @@ use crate::error::{Error, Result};
 
 /// An HTTP request.
 pub struct Request {
-    /// The requested path.
-    path: String,
+    /// The requested URL.
+    url: String,
 }
 
 impl Request {
@@ -26,23 +26,30 @@ impl Request {
             return Err(Error::StreamNotHttpRequest);
         }
 
-        let Ok(path) = percent_decode_str(request_line[1]).decode_utf8() else {
-            return Err(Error::RequestPathNotUtf8);
-        };
-
-        let mut path = path.to_string();
-
-        if let Some(pair) = path.split_once(|c| c == '#' || c == '?' || c == '&') {
-            path = pair.0.to_string();
+        if !request_line[2].starts_with("HTTP/") {
+            return Err(Error::StreamNotHttpRequest);
         }
 
-        let path = path.trim_matches(|c| c == '/' || c == '\\').to_string();
-
-        Ok(Request { path })
+        let url = normalize_url(request_line[1]);
+        Ok(Request { url })
     }
 
     /// Get the requested path.
     pub fn path(&self) -> &str {
-        &self.path
+        &self.url
     }
+}
+
+/// Normalize a request URL.
+fn normalize_url(url: &str) -> String {
+    let mut url = match percent_decode_str(url).decode_utf8() {
+        Ok(url) => url.to_string(),
+        Err(_) => url.to_string(),
+    };
+
+    if let Some(pair) = url.split_once(|c| c == '#' || c == '?' || c == '&') {
+        url = pair.0.to_string();
+    }
+
+    url.replace('\\', "/").trim_matches('/').to_string()
 }
