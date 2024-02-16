@@ -103,6 +103,12 @@ impl Response {
         Response::new(status, content)
     }
 
+    /// Enable cross-origin isolation for the HTTP response.
+    pub fn enable_cross_origin_isolation(&mut self) {
+        self.insert_field("Cross-Origin-Embedder-Policy", "require-corp".to_string());
+        self.insert_field("Cross-Origin-Opener-Policy", "same-origin".to_string());
+    }
+
     /// Write the HTTP response to a TCP stream.
     pub fn write(&self, stream: &mut TcpStream) -> Result<()> {
         stream.write_all(&self.to_vec())?;
@@ -124,6 +130,7 @@ impl Response {
             response.insert_field("Content-Type", mime.essence_str().to_string());
         }
 
+        response.enable_cross_origin_isolation();
         response
     }
 
