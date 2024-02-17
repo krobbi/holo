@@ -1,79 +1,15 @@
+mod content;
+mod status;
+
+pub use content::Content;
+pub use status::Status;
+
 use std::{
     collections::HashMap,
     io::{self, Write},
     net::TcpStream,
     path::PathBuf,
 };
-
-use new_mime_guess::Mime;
-
-/// An HTTP response status.
-pub enum Status {
-    /// The request succeeded.
-    Ok,
-
-    /// The client does not have access rights to the content.
-    Forbidden,
-
-    /// The server cannot find the requested resource.
-    NotFound,
-
-    /// The server has encountered a situation it does not know how to handle.
-    InternalServerError,
-}
-
-impl Status {
-    /// Get the status code.
-    fn code(&self) -> u16 {
-        match self {
-            Status::Ok => 200,
-            Status::Forbidden => 403,
-            Status::NotFound => 404,
-            Status::InternalServerError => 500,
-        }
-    }
-
-    /// Get the reason phrase.
-    fn reason(&self) -> &'static str {
-        match self {
-            Status::Ok => "OK",
-            Status::Forbidden => "Forbidden",
-            Status::NotFound => "Not Found",
-            Status::InternalServerError => "Internal Server Error",
-        }
-    }
-}
-
-/// A file's content.
-pub struct Content {
-    /// The path.
-    path: PathBuf,
-
-    /// The data.
-    data: Vec<u8>,
-}
-
-impl Content {
-    /// Create new content from a path and data.
-    pub fn new(path: PathBuf, data: Vec<u8>) -> Content {
-        Content { path, data }
-    }
-
-    /// Get the MIME type.
-    fn mime(&self) -> Option<Mime> {
-        new_mime_guess::from_path(&self.path).first()
-    }
-
-    /// Get the data's length.
-    fn len(&self) -> usize {
-        self.data.len()
-    }
-
-    /// Get the data as a byte slice.
-    fn as_bytes(&self) -> &[u8] {
-        &self.data
-    }
-}
 
 /// An HTTP response.
 pub struct Response {
