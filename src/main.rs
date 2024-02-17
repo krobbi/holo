@@ -1,7 +1,7 @@
 mod config;
 mod request;
 mod response;
-mod router;
+mod server;
 
 use std::{
     io,
@@ -12,7 +12,6 @@ use std::{
 use config::Config;
 use request::Request;
 use response::Response;
-use router::route_request;
 
 /// Handle errors from the Holo server.
 fn main() {
@@ -50,10 +49,8 @@ fn serve_tcp(mut stream: TcpStream, config: &Config) -> io::Result<()> {
 
 /// Serve an HTTP request.
 fn serve_http(request: &Request, config: &Config) -> Response {
-    let mut response = match route_request(request) {
-        Ok(content) => Response::ok(content),
-        Err(status) => Response::error(status),
-    };
+    let content = server::serve_content(request);
+    let mut response = Response::new(content);
 
     if config.cross_origin_isolation() {
         response.enable_cross_origin_isolation();
