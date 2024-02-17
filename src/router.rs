@@ -11,7 +11,7 @@ pub fn route_request(request: &Request) -> Result<Content, Status> {
         return Err(Status::Forbidden);
     }
 
-    let path = PathBuf::from(request.path());
+    let path = PathBuf::from(request.url());
     read_file(path)
 }
 

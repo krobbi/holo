@@ -1,16 +1,15 @@
 mod config;
-mod error;
 mod request;
 mod response;
 mod router;
 
 use std::{
+    io,
     net::{TcpListener, TcpStream},
     process,
 };
 
 use config::Config;
-use error::Result;
 use request::Request;
 use response::Response;
 use router::route_request;
@@ -24,7 +23,7 @@ fn main() {
 }
 
 /// Run the Holo server.
-fn run() -> Result<()> {
+fn run() -> io::Result<()> {
     let config = Config::new();
     let port = config.port();
     let listener = TcpListener::bind(("127.0.0.1", port))?;
@@ -33,21 +32,20 @@ fn run() -> Result<()> {
 
     for stream in listener.incoming() {
         let stream = stream?;
-
-        if let Err(error) = serve_tcp(stream, &config) {
-            eprintln!("[Error] {error}");
-        }
+        serve_tcp(stream, &config)?;
     }
 
     Ok(())
 }
 
 /// Serve a TCP stream.
-fn serve_tcp(mut stream: TcpStream, config: &Config) -> Result<()> {
-    let request = Request::read(&stream)?;
+fn serve_tcp(mut stream: TcpStream, config: &Config) -> io::Result<()> {
+    let Some(request) = Request::read(&stream) else {
+        return Ok(());
+    };
+
     let response = serve_http(&request, config);
-    response.write(&mut stream)?;
-    Ok(())
+    response.write(&mut stream)
 }
 
 /// Serve an HTTP request.

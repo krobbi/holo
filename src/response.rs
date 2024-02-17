@@ -1,8 +1,11 @@
-use std::{collections::HashMap, io::Write, net::TcpStream, path::PathBuf};
+use std::{
+    collections::HashMap,
+    io::{self, Write},
+    net::TcpStream,
+    path::PathBuf,
+};
 
 use new_mime_guess::Mime;
-
-use crate::error::Result;
 
 /// An HTTP response status.
 pub enum Status {
@@ -115,9 +118,8 @@ impl Response {
     }
 
     /// Write the HTTP response to a TCP stream.
-    pub fn write(&self, stream: &mut TcpStream) -> Result<()> {
-        stream.write_all(&self.to_vec())?;
-        Ok(())
+    pub fn write(&self, stream: &mut TcpStream) -> io::Result<()> {
+        stream.write_all(&self.to_vec())
     }
 
     /// Create a new HTTP response from a status and content.

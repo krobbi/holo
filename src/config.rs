@@ -5,7 +5,7 @@ pub struct Config {
     /// The TCP port.
     port: u16,
 
-    /// Whether to cross-origin isolation is enabled.
+    /// Whether cross-origin isolation is enabled.
     cross_origin_isolation: bool,
 }
 
