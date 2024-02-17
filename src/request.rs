@@ -9,6 +9,9 @@ use crate::error::{Error, Result};
 
 /// An HTTP request.
 pub struct Request {
+    /// Whether the request comes from a loopback address.
+    loopback: bool,
+
     /// The requested URL.
     url: String,
 }
@@ -30,8 +33,18 @@ impl Request {
             return Err(Error::StreamNotHttpRequest);
         }
 
+        let loopback = match stream.peer_addr() {
+            Ok(address) => address.ip().is_loopback(),
+            Err(_) => false,
+        };
+
         let url = normalize_url(request_line[1]);
-        Ok(Request { url })
+        Ok(Request { loopback, url })
+    }
+
+    /// Get whether the request comes from a loopback address.
+    pub fn loopback(&self) -> bool {
+        self.loopback
     }
 
     /// Get the requested path.

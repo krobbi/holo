@@ -9,6 +9,9 @@ pub enum Status {
     /// The request succeeded.
     Ok,
 
+    /// The client does not have access rights to the content.
+    Forbidden,
+
     /// The server cannot find the requested resource.
     NotFound,
 
@@ -21,6 +24,7 @@ impl Status {
     fn code(&self) -> u16 {
         match self {
             Status::Ok => 200,
+            Status::Forbidden => 403,
             Status::NotFound => 404,
             Status::InternalServerError => 500,
         }
@@ -30,6 +34,7 @@ impl Status {
     fn reason(&self) -> &'static str {
         match self {
             Status::Ok => "OK",
+            Status::Forbidden => "Forbidden",
             Status::NotFound => "Not Found",
             Status::InternalServerError => "Internal Server Error",
         }

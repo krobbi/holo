@@ -9,7 +9,9 @@ __Copyright &copy; 2024 Chris Roberts__ (Krobbizoid).
 3. [License](#license)
 
 # Usage
-Holo is a basic HTTP server targeted at serving local files for testing.
+Holo is a basic HTTP server targeted at serving local files for testing. Unlike
+a typical HTTP server, Holo is single-threaded and forbids access from
+non-local requests.
 
 Build Holo with `cargo build --release` and move the executable from
 `target/release/holo(.exe)` to a directory with environment access. After this
@@ -36,7 +38,7 @@ If the `--coi` flag is set, additional HTTP headers will be served to enable
 cross-origin isolation. Cross-origin isolation may not function correctly on
 local servers in some browsers.
 
-If the `--help` flags is set, Holo will print help information but not perform
+If the `--help` flag is set, Holo will print help information but not perform
 any action.
 
 # Dependencies

@@ -1,9 +1,22 @@
 use std::{fs, path::PathBuf};
 
-use crate::response::{Content, Status};
+use crate::{
+    request::Request,
+    response::{Content, Status},
+};
+
+/// Route an HTTP request to content.
+pub fn route_request(request: &Request) -> Result<Content, Status> {
+    if !request.loopback() {
+        return Err(Status::Forbidden);
+    }
+
+    let path = PathBuf::from(request.path());
+    read_file(path)
+}
 
 /// Read a file's content from its path.
-pub fn read_file(path: PathBuf) -> Result<Content, Status> {
+fn read_file(path: PathBuf) -> Result<Content, Status> {
     if !path.is_file() {
         return Err(Status::NotFound);
     }

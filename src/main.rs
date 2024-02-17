@@ -6,7 +6,6 @@ mod router;
 
 use std::{
     net::{TcpListener, TcpStream},
-    path::PathBuf,
     process,
 };
 
@@ -14,7 +13,7 @@ use config::Config;
 use error::Result;
 use request::Request;
 use response::Response;
-use router::read_file;
+use router::route_request;
 
 /// Handle errors from the Holo server.
 fn main() {
@@ -35,7 +34,7 @@ fn run() -> Result<()> {
     for stream in listener.incoming() {
         let stream = stream?;
 
-        if let Err(error) = serve(stream, &config) {
+        if let Err(error) = serve_tcp(stream, &config) {
             eprintln!("[Error] {error}");
         }
     }
@@ -44,18 +43,16 @@ fn run() -> Result<()> {
 }
 
 /// Serve a TCP stream.
-fn serve(mut stream: TcpStream, config: &Config) -> Result<()> {
+fn serve_tcp(mut stream: TcpStream, config: &Config) -> Result<()> {
     let request = Request::read(&stream)?;
-    let response = respond(&request, config);
+    let response = serve_http(&request, config);
     response.write(&mut stream)?;
     Ok(())
 }
 
-/// Respond to an HTTP request with an HTTP response.
-fn respond(request: &Request, config: &Config) -> Response {
-    let path = PathBuf::from(request.path());
-
-    let mut response = match read_file(path) {
+/// Serve an HTTP request.
+fn serve_http(request: &Request, config: &Config) -> Response {
+    let mut response = match route_request(request) {
         Ok(content) => Response::ok(content),
         Err(status) => Response::error(status),
     };
