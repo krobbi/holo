@@ -1,7 +1,4 @@
-use std::{
-    fs,
-    path::{Path, PathBuf},
-};
+use std::{fs, path::Path};
 
 use crate::{
     config::Config,
@@ -11,7 +8,7 @@ use crate::{
 
 /// Respond to a request.
 pub fn respond(request: &Request, config: &Config) -> Response {
-    let content = serve_request(request);
+    let content = serve_request(request, config);
     let mut response = Response::new(content);
 
     if config.cross_origin_isolation() {
@@ -22,13 +19,22 @@ pub fn respond(request: &Request, config: &Config) -> Response {
 }
 
 /// Serve content using a request.
-fn serve_request(request: &Request) -> Content {
+fn serve_request(request: &Request, config: &Config) -> Content {
     if !request.loopback() {
         return Content::Error(Status::Forbidden);
     }
 
-    let path = PathBuf::from(request.url());
-    serve_path(&path)
+    let root = config.root();
+
+    let Ok(path) = root.join(request.url()).canonicalize() else {
+        return Content::Error(Status::NotFound);
+    };
+
+    if path.starts_with(root) {
+        serve_path(&path)
+    } else {
+        Content::Error(Status::NotFound)
+    }
 }
 
 /// Serve content using a path.
