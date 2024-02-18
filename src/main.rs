@@ -11,9 +11,8 @@ use std::{
 
 use config::Config;
 use request::Request;
-use response::Response;
 
-/// Handle errors from the Holo server.
+/// Handle errors from Holo.
 fn main() {
     if let Err(error) = run() {
         eprintln!("{error}");
@@ -21,7 +20,7 @@ fn main() {
     }
 }
 
-/// Run the Holo server.
+/// Run Holo.
 fn run() -> io::Result<()> {
     let config = Config::new();
     let port = config.port();
@@ -31,30 +30,18 @@ fn run() -> io::Result<()> {
 
     for stream in listener.incoming() {
         let stream = stream?;
-        serve_tcp(stream, &config)?;
+        handle_connection(stream, &config)?;
     }
 
     Ok(())
 }
 
-/// Serve a TCP stream.
-fn serve_tcp(mut stream: TcpStream, config: &Config) -> io::Result<()> {
+/// Handle a TCP connection.
+fn handle_connection(mut stream: TcpStream, config: &Config) -> io::Result<()> {
     let Some(request) = Request::read(&stream) else {
         return Ok(());
     };
 
-    let response = serve_http(&request, config);
+    let response = server::respond(&request, config);
     response.write(&mut stream)
-}
-
-/// Serve an HTTP request.
-fn serve_http(request: &Request, config: &Config) -> Response {
-    let content = server::serve_content(request);
-    let mut response = Response::new(content);
-
-    if config.cross_origin_isolation() {
-        response.enable_cross_origin_isolation();
-    }
-
-    response
 }
