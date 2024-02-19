@@ -3,8 +3,6 @@ use std::{
     net::TcpStream,
 };
 
-use percent_encoding::percent_decode_str;
-
 /// An HTTP request.
 pub struct Request {
     /// Whether the request comes from a loopback address.
@@ -15,19 +13,15 @@ pub struct Request {
 }
 
 impl Request {
-    /// Read a new HTTP request using a TCP stream.
-    pub fn read(stream: &TcpStream) -> Option<Request> {
+    /// Receive a new request using a TCP connection.
+    pub fn receive(stream: &TcpStream) -> Option<Request> {
         let Some(Ok(request_line)) = BufReader::new(stream).lines().next() else {
             return None;
         };
 
         let request_line: Vec<&str> = request_line.split_whitespace().collect();
 
-        if request_line.len() != 3 {
-            return None;
-        }
-
-        if !request_line[2].starts_with("HTTP/") {
+        if request_line.len() != 3 || !request_line[2].starts_with("HTTP/") {
             return None;
         }
 
@@ -36,7 +30,7 @@ impl Request {
             Err(_) => false,
         };
 
-        let url = normalize_url(request_line[1]);
+        let url = strip_query(request_line[1]).to_string();
         Some(Request { loopback, url })
     }
 
@@ -51,16 +45,10 @@ impl Request {
     }
 }
 
-/// Normalize a request URL.
-fn normalize_url(url: &str) -> String {
-    let mut url = match percent_decode_str(url).decode_utf8() {
-        Ok(url) => url.to_string(),
-        Err(_) => url.to_string(),
-    };
-
-    if let Some(pair) = url.split_once(|c| c == '#' || c == '?' || c == '&') {
-        url = pair.0.to_string();
+/// Strip a query string from a request URL.
+fn strip_query(url: &str) -> &str {
+    match url.split_once('?') {
+        Some((prefix, _)) => prefix,
+        None => url,
     }
-
-    url.replace('\\', "/").trim_matches('/').to_string()
 }

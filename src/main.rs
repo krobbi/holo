@@ -38,7 +38,7 @@ fn run() -> io::Result<()> {
 
 /// Handle a TCP connection.
 fn handle_connection(mut stream: TcpStream, config: &Config) -> io::Result<()> {
-    let Some(request) = Request::read(&stream) else {
+    let Some(request) = Request::receive(&stream) else {
         return Ok(());
     };
 

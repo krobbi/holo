@@ -1,4 +1,7 @@
-use std::{fs, path::Path};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 use crate::{
     config::Config,
@@ -25,15 +28,26 @@ fn serve_request(request: &Request, config: &Config) -> Content {
     }
 
     let root = config.root();
+    let url = request.url();
 
-    let Ok(path) = root.join(request.url()).canonicalize() else {
-        return Content::Error(Status::NotFound);
+    match resolve_path(root, url) {
+        Some(path) => serve_path(&path),
+        None => Content::Error(Status::NotFound),
+    }
+}
+
+/// Resolve a path using a server root directory and a request URL.
+fn resolve_path(root: &Path, url: &str) -> Option<PathBuf> {
+    let url = &percent_encoding::percent_decode_str(url).decode_utf8_lossy()[1..];
+
+    let Ok(path) = root.join(url).canonicalize() else {
+        return None;
     };
 
     if path.starts_with(root) {
-        serve_path(&path)
+        Some(path)
     } else {
-        Content::Error(Status::NotFound)
+        None
     }
 }
 
