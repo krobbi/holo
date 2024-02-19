@@ -22,7 +22,7 @@ fn main() {
 
 /// Run Holo.
 fn run() -> io::Result<()> {
-    let config = Config::new()?;
+    let config = Config::new();
     let port = config.port();
     let listener = TcpListener::bind(("127.0.0.1", port))?;
     eprintln!("Serving files at 'http://localhost:{port}/'...");
