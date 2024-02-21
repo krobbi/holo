@@ -11,7 +11,7 @@ use crate::{
 
 /// Respond to a request.
 pub fn respond(request: &Request, config: &Config) -> Response {
-    let content = serve_request(request, config);
+    let content = serve_content(request, config);
     let mut response = Response::new(content);
 
     if config.cross_origin_isolation() {
@@ -22,7 +22,7 @@ pub fn respond(request: &Request, config: &Config) -> Response {
 }
 
 /// Serve content using a request.
-fn serve_request(request: &Request, config: &Config) -> Content {
+fn serve_content(request: &Request, config: &Config) -> Content {
     if !request.loopback() {
         return Content::Error(Status::Forbidden);
     }
@@ -30,9 +30,31 @@ fn serve_request(request: &Request, config: &Config) -> Content {
     let root = config.root();
     let url = request.url();
 
-    match resolve_path(root, url) {
-        Some(path) => serve_path(&path),
-        None => Content::Error(Status::NotFound),
+    let Some(mut path) = resolve_path(root, url) else {
+        return Content::Error(Status::NotFound);
+    };
+
+    if path.is_dir() {
+        if !url.ends_with('/') {
+            // TODO: Redirect to trailing slash.
+            return Content::Error(Status::NotFound);
+        }
+
+        path.push("index.html");
+
+        if !path.is_file() {
+            return Content::Error(Status::NotFound);
+        }
+    } else if url.ends_with('/') {
+        return Content::Error(Status::NotFound);
+    }
+
+    match fs::read(&path) {
+        Ok(data) => {
+            let mime = new_mime_guess::from_path(&path).first();
+            Content::Page(mime, data)
+        }
+        Err(_) => Content::Error(Status::InternalServerError),
     }
 }
 
@@ -48,20 +70,5 @@ fn resolve_path(root: &Path, url: &str) -> Option<PathBuf> {
         Some(path)
     } else {
         None
-    }
-}
-
-/// Serve content using a path.
-fn serve_path(path: &Path) -> Content {
-    if !path.is_file() {
-        return Content::Error(Status::NotFound);
-    }
-
-    match fs::read(path) {
-        Ok(data) => {
-            let mime = new_mime_guess::from_path(path).first();
-            Content::Page(mime, data)
-        }
-        Err(_) => Content::Error(Status::InternalServerError),
     }
 }
