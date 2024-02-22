@@ -1,69 +1,60 @@
-mod content;
+mod packet;
+mod page;
 mod status;
 
-pub use content::Content;
+pub use page::Page;
 pub use status::Status;
 
 use std::{
-    collections::HashMap,
     io::{self, Write},
     net::TcpStream,
 };
 
+use crate::config::Config;
+
+use packet::Packet;
+
 /// An HTTP response.
 pub struct Response {
-    /// The content.
-    content: Content,
-
-    /// The header fields.
-    fields: HashMap<&'static str, String>,
+    /// The page.
+    page: Page,
 }
 
 impl Response {
-    /// Create a new HTTP response from content.
-    pub fn new(content: Content) -> Response {
-        let fields = HashMap::new();
-        let mut response = Response { content, fields };
-        response.insert_field("Connection", "close".to_string());
-        response.insert_field("Content-Length", response.content.data().len().to_string());
+    /// Create a new response from a page.
+    pub fn from_page(page: Page) -> Response {
+        Response { page }
+    }
 
-        if let Some(mime) = response.content.mime() {
-            response.insert_field("Content-Type", mime.to_string());
+    /// Consume and send the response to a TCP connection.
+    pub fn send(self, stream: &mut TcpStream, config: &Config) -> io::Result<()> {
+        let mut packet = Vec::new();
+
+        {
+            let status = self.page.status();
+            let code = status.code();
+            let reason = status.reason();
+            packet.put_status_line(code, reason);
         }
 
-        response
-    }
+        packet.put_header("Connection", "close");
 
-    /// Enable cross-origin isolation for the HTTP response.
-    pub fn enable_cross_origin_isolation(&mut self) {
-        self.insert_field("Cross-Origin-Embedder-Policy", "require-corp".to_string());
-        self.insert_field("Cross-Origin-Opener-Policy", "same-origin".to_string());
-    }
-
-    /// Write the HTTP response to a TCP stream.
-    pub fn write(&self, stream: &mut TcpStream) -> io::Result<()> {
-        stream.write_all(&self.to_vec())
-    }
-
-    /// Insert a header field into the HTTP response.
-    fn insert_field(&mut self, key: &'static str, value: String) {
-        self.fields.insert(key, value);
-    }
-
-    /// Get the HTTP response as a byte vector.
-    fn to_vec(&self) -> Vec<u8> {
-        let status = self.content.status();
-        let code = status.code();
-        let reason = status.reason();
-        let mut data = format!("HTTP/1.1 {code} {reason}\r\n");
-
-        for (key, value) in &self.fields {
-            data.push_str(format!("{key}: {value}\r\n").as_str());
+        if config.cross_origin_isolation() {
+            packet.put_header("Cross-Origin-Embedder-Policy", "require-corp");
+            packet.put_header("Cross-Origin-Opener-Policy", "same-origin");
         }
 
-        data.push_str("\r\n");
-        let mut data = data.as_bytes().to_vec();
-        data.extend_from_slice(self.content.data());
-        data
+        if let Some(mime) = self.page.mime() {
+            packet.put_header("Content-Type", mime);
+        }
+
+        {
+            let content = self.page.into_content();
+            packet.put_header("Content-Length", &content.len().to_string());
+            packet.put_end_of_headers();
+            packet.put_content(content);
+        }
+
+        stream.write_all(&packet)
     }
 }

@@ -43,5 +43,5 @@ fn handle_connection(mut stream: TcpStream, config: &Config) -> io::Result<()> {
     };
 
     let response = server::respond(&request, config);
-    response.write(&mut stream)
+    response.send(&mut stream, config)
 }
