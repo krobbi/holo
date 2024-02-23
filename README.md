@@ -77,8 +77,6 @@ holo etc/builds/web/ -p 8060 -i
 ```
 
 # Limitations
-* Directory URLs must have a trailing slash e.g.
-`http://localhost:8080/about/`.
 * Clients from outside the host machine will only be served 403 pages. This is
 an intentional design choice to improve privacy. An option to open servers to
 LAN or the internet is being considered.

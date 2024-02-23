@@ -3,6 +3,9 @@ pub enum Status {
     /// The request succeeded.
     Ok,
 
+    /// The URL of the requested resource has been changed permanently.
+    MovedPermanently,
+
     /// The client does not have access rights to the content.
     Forbidden,
 
@@ -18,6 +21,7 @@ impl Status {
     pub(super) fn code(&self) -> u16 {
         match self {
             Status::Ok => 200,
+            Status::MovedPermanently => 301,
             Status::Forbidden => 403,
             Status::NotFound => 404,
             Status::InternalServerError => 500,
@@ -28,6 +32,7 @@ impl Status {
     pub(super) fn reason(&self) -> &'static str {
         match self {
             Status::Ok => "OK",
+            Status::MovedPermanently => "Moved Permanently",
             Status::Forbidden => "Forbidden",
             Status::NotFound => "Not Found",
             Status::InternalServerError => "Internal Server Error",

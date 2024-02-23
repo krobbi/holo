@@ -30,8 +30,7 @@ fn serve_page(request: &Request, config: &Config) -> Page {
 
     if path.is_dir() {
         if !url.ends_with('/') {
-            // TODO: Redirect to trailing slash.
-            return Page::Error(Status::NotFound);
+            return Page::Redirect(format!("{url}/"));
         }
 
         path.push("index.html");

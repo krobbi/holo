@@ -44,6 +44,10 @@ impl Response {
             packet.put_header("Cross-Origin-Opener-Policy", "same-origin");
         }
 
+        if let Page::Redirect(url) = &self.page {
+            packet.put_header("Location", url);
+        }
+
         if let Some(mime) = self.page.mime() {
             packet.put_header("Content-Type", mime);
         }
