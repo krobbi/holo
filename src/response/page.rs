@@ -26,8 +26,7 @@ impl Page {
     pub(super) fn mime(&self) -> Option<&str> {
         match self {
             Page::File(mime, _) => mime.as_deref(),
-            Page::Redirect(_) => Some("text/html"),
-            Page::Error(_) => Some("text/plain"),
+            Page::Redirect(_) | Page::Error(_) => Some("text/html"),
         }
     }
 
@@ -36,13 +35,25 @@ impl Page {
         match self {
             Page::File(_, content) => content,
             Page::Redirect(url) => redirect_content(&url),
-            Page::Error(status) => Vec::from(status.reason()),
+            Page::Error(status) => error_content(&status),
         }
     }
 }
 
-/// Create new redirect content from a target URL.
+/// Create new redirect content using a target URL.
 fn redirect_content(url: &str) -> Vec<u8> {
     static TEMPLATE: &str = include_str!("../../res/redirect.html");
     TEMPLATE.replace("{{url}}", url).into_bytes()
+}
+
+/// Create new error content using an error status.
+fn error_content(status: &Status) -> Vec<u8> {
+    static TEMPLATE: &str = include_str!("../../res/error.html");
+    let code = status.code();
+    let reason = status.reason();
+
+    TEMPLATE
+        .replace("{{code}}", &code.to_string())
+        .replace("{{reason}}", reason)
+        .into_bytes()
 }
