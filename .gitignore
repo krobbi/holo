@@ -1,6 +1,5 @@
 # Rust:
 target/*
-Cargo.lock
 *.exe
 *.pdb
 *.rs.bk
@@ -17,6 +16,6 @@ ignore/*
 *.suo
 
 # OS:
-.DS_store
+.DS_Store
 desktop.ini
 Thumbs.db
