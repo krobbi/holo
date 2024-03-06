@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use clap::{error::ErrorKind, value_parser, Arg, ArgAction, Command, ValueHint};
+use clap::{arg, command, error::ErrorKind, value_parser, ValueHint};
 
 /// Configuration data for Holo.
 pub struct Config {
@@ -17,29 +17,19 @@ pub struct Config {
 impl Config {
     /// Create new configuration data using command line arguments.
     pub fn new() -> Config {
-        let mut cmd = Command::new("holo")
+        let mut cmd = command!()
             .arg(
-                Arg::new("root")
+                arg!([root] "Server root directory")
                     .value_parser(value_parser!(PathBuf))
                     .value_hint(ValueHint::DirPath)
-                    .default_value(".")
-                    .help("Server root directory"),
+                    .default_value("."),
             )
             .arg(
-                Arg::new("port")
-                    .short('p')
-                    .long("port")
+                arg!(-p --port <port> "TCP port")
                     .value_parser(value_parser!(u16))
-                    .default_value("8080")
-                    .help("TCP port"),
+                    .default_value("8080"),
             )
-            .arg(
-                Arg::new("cross_origin_isolation")
-                    .short('i')
-                    .long("coi")
-                    .action(ArgAction::SetTrue)
-                    .help("Enable cross-origin isolation"),
-            );
+            .arg(arg!(-i --coi "Enable cross-origin isolation"));
 
         let matches = cmd.get_matches_mut();
 
@@ -54,7 +44,7 @@ impl Config {
         }
 
         let port = matches.get_one::<u16>("port").unwrap().to_owned();
-        let cross_origin_isolation = matches.get_flag("cross_origin_isolation");
+        let cross_origin_isolation = matches.get_flag("coi");
 
         Config {
             root,

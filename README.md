@@ -43,6 +43,7 @@ working directory will be used.
 | `-p`  | `--port`    | `<port>`  | TCP port [default: 8080]      |
 | `-i`  | `--coi`     | _(None)_  | Enable cross-origin isolation |
 | `-h`  | `--help`    | _(None)_  | Print help                    |
+| `-V`  | `--version` | _(None)_  | Print version                 |
 
 If the `--port` option is not set, the default port of `8080` will be used.
 Ports below `1024` are likely to be reserved or require administrator
@@ -52,8 +53,8 @@ If the `--coi` flag is set, additional HTTP headers will be served to enable
 cross-origin isolation. Cross-origin isolation may not function correctly on
 local servers in some browsers.
 
-If the `--help` flag is set, Holo will print help information but not perform
-any action.
+If the `--help` or `--version` flag is set, Holo will print information but not
+perform any action.
 
 ## Examples
 Serve files in the current working directory on port `8080`:
