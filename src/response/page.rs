@@ -3,7 +3,7 @@ use super::Status;
 /// An HTTP response's page.
 pub enum Page {
     /// File with media type and content.
-    File(Option<String>, Vec<u8>),
+    File(Option<&'static str>, Vec<u8>),
 
     /// Redirect to URL.
     Redirect(String),
@@ -25,7 +25,7 @@ impl Page {
     /// Get the media type.
     pub(super) fn media_type(&self) -> Option<&str> {
         match self {
-            Page::File(media_type, _) => media_type.as_deref(),
+            Page::File(media_type, _) => *media_type,
             Page::Redirect(_) | Page::Error(_) => Some("text/html"),
         }
     }

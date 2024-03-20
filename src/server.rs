@@ -43,13 +43,7 @@ fn serve_page(request: &Request, config: &Config) -> Page {
     }
 
     match fs::read(&path) {
-        Ok(content) => {
-            let media_type = new_mime_guess::from_path(&path)
-                .first()
-                .map(|m| m.essence_str().to_string());
-
-            Page::File(media_type, content)
-        }
+        Ok(content) => Page::File(new_mime_guess::from_path(&path).first_raw(), content),
         Err(_) => Page::Error(Status::InternalServerError),
     }
 }
