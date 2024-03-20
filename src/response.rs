@@ -48,8 +48,8 @@ impl Response {
             packet.put_header("Location", url);
         }
 
-        if let Some(mime) = self.page.mime() {
-            packet.put_header("Content-Type", mime);
+        if let Some(media_type) = self.page.media_type() {
+            packet.put_header("Content-Type", media_type);
         }
 
         {

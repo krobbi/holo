@@ -89,7 +89,7 @@ one at a time.
 # Dependencies
 Holo uses the following libraries:
 * [clap](https://crates.io/crates/clap) - Command line argument parsing.
-* [new_mime_guess](https://crates.io/crates/new_mime_guess) - MIME type
+* [new_mime_guess](https://crates.io/crates/new_mime_guess) - Media type
 inference.
 * [percent-encoding](https://crates.io/crates/percent-encoding) - Request URL
 decoding.

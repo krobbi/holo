@@ -44,11 +44,11 @@ fn serve_page(request: &Request, config: &Config) -> Page {
 
     match fs::read(&path) {
         Ok(content) => {
-            let mime = new_mime_guess::from_path(&path)
+            let media_type = new_mime_guess::from_path(&path)
                 .first()
                 .map(|m| m.essence_str().to_string());
 
-            Page::File(mime, content)
+            Page::File(media_type, content)
         }
         Err(_) => Page::Error(Status::InternalServerError),
     }

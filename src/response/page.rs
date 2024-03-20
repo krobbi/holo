@@ -2,7 +2,7 @@ use super::Status;
 
 /// An HTTP response's page.
 pub enum Page {
-    /// File with MIME type and content.
+    /// File with media type and content.
     File(Option<String>, Vec<u8>),
 
     /// Redirect to URL.
@@ -22,10 +22,10 @@ impl Page {
         }
     }
 
-    /// Get the MIME type essence.
-    pub(super) fn mime(&self) -> Option<&str> {
+    /// Get the media type.
+    pub(super) fn media_type(&self) -> Option<&str> {
         match self {
-            Page::File(mime, _) => mime.as_deref(),
+            Page::File(media_type, _) => media_type.as_deref(),
             Page::Redirect(_) | Page::Error(_) => Some("text/html"),
         }
     }
