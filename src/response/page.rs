@@ -14,11 +14,11 @@ pub enum Page {
 
 impl Page {
     /// Get the status.
-    pub(super) fn status(&self) -> &Status {
+    pub(super) fn status(&self) -> Status {
         match self {
-            Page::File(_, _) => &Status::Ok,
-            Page::Redirect(_) => &Status::MovedPermanently,
-            Page::Error(status) => status,
+            Page::File(_, _) => Status::Ok,
+            Page::Redirect(_) => Status::MovedPermanently,
+            Page::Error(status) => *status,
         }
     }
 
@@ -35,7 +35,7 @@ impl Page {
         match self {
             Page::File(_, content) => content,
             Page::Redirect(url) => redirect_content(&url),
-            Page::Error(status) => error_content(&status),
+            Page::Error(status) => error_content(status),
         }
     }
 }
@@ -47,13 +47,13 @@ fn redirect_content(url: &str) -> Vec<u8> {
 }
 
 /// Create new error content using an error status.
-fn error_content(status: &Status) -> Vec<u8> {
+fn error_content(status: Status) -> Vec<u8> {
     static TEMPLATE: &str = include_str!("../../res/error.html");
-    let code = status.code();
+    let code = &status.code().to_string();
     let reason = status.reason();
 
     TEMPLATE
-        .replace("{{code}}", &code.to_string())
+        .replace("{{code}}", code)
         .replace("{{reason}}", reason)
         .into_bytes()
 }
