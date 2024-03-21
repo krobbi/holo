@@ -13,7 +13,7 @@ __Copyright &copy; 2024 Chris Roberts__ (Krobbizoid).
 
 # Usage
 Holo is a basic HTTP server targeted at serving local files for testing.
-Because of its limited scope and minimalistic implementation, it has some
+Because of its focus on simplicity and privacy, it has some
 [limitations](#limitations) that may prevent it from doing what you want it to
 do.
 
@@ -38,23 +38,22 @@ from. The path must be an existing directory. If no path is given, the current
 working directory will be used.
 
 ## Options
-| Short | Long        | Arguments | Usage                         |
-| :---- | :---------- | :-------- | :---------------------------- |
-| `-p`  | `--port`    | `<port>`  | TCP port [default: 8080]      |
-| `-i`  | `--coi`     | _(None)_  | Enable cross-origin isolation |
-| `-h`  | `--help`    | _(None)_  | Print help                    |
-| `-V`  | `--version` | _(None)_  | Print version                 |
+| Short | Long        | Arguments | Usage                                |
+| :---- | :---------- | :-------- | :----------------------------------- |
+| `-p`  | `--port`    | `<port>`  | TCP port [default: 8080]             |
+| `-c`  | `--cors`    | _(None)_  | Enable cross-origin resource sharing |
+| `-h`  | `--help`    | _(None)_  | Print help                           |
+| `-V`  | `--version` | _(None)_  | Print version                        |
 
 If the `--port` option is not set, the default port of `8080` will be used.
 Ports below `1024` are likely to be reserved or require administrator
 privileges.
 
-If the `--coi` flag is set, additional HTTP headers will be served to enable
-cross-origin isolation. Cross-origin isolation may not function correctly on
-local servers in some browsers.
+If the `--cors` flag is set, resources from outside the host machine will be
+allowed in webpages, but some JavaScript features will be disabled.
 
-If the `--help` or `--version` flag is set, Holo will print information but not
-perform any action.
+If the `--help` or `--version` flags are set, Holo will print information but
+not perform any action.
 
 ## Examples
 Serve files in the current working directory on port `8080`:
@@ -62,19 +61,14 @@ Serve files in the current working directory on port `8080`:
 holo
 ```
 
-Serve files in `C:\htdocs\` on port `80`:
+Serve files in `etc/builds/web/` on port `8060`:
 ```shell
-holo C:\htdocs -p 80
+holo etc/builds/web/ -p 8060
 ```
 
-Serve files in `ignore/` on port `8080` with cross-origin isolation:
+Serve files in `C:\htdocs\` on port `80` with cross-origin resources:
 ```shell
-holo ignore -i
-```
-
-Serve files in `etc/builds/web/` on port `8060` with cross-origin isolation:
-```shell
-holo etc/builds/web/ -p 8060 -i
+holo C:\htdocs -p 80 -c
 ```
 
 # Limitations

@@ -39,7 +39,7 @@ impl Response {
 
         packet.put_header("Connection", "close");
 
-        if config.cross_origin_isolation() {
+        if !config.cors() {
             packet.put_header("Cross-Origin-Embedder-Policy", "require-corp");
             packet.put_header("Cross-Origin-Opener-Policy", "same-origin");
         }

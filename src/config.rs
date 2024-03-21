@@ -10,8 +10,8 @@ pub struct Config {
     /// The TCP port.
     port: u16,
 
-    /// Whether cross-origin isolation is enabled.
-    cross_origin_isolation: bool,
+    /// Whether cross-origin resource sharing is enabled.
+    cors: bool,
 }
 
 impl Config {
@@ -29,7 +29,7 @@ impl Config {
                     .value_parser(value_parser!(u16))
                     .default_value("8080"),
             )
-            .arg(arg!(-i --coi "Enable cross-origin isolation"));
+            .arg(arg!(-c --cors "Enable cross-origin resource sharing"));
 
         let matches = cmd.get_matches_mut();
 
@@ -44,13 +44,8 @@ impl Config {
         }
 
         let port = matches.get_one::<u16>("port").unwrap().to_owned();
-        let cross_origin_isolation = matches.get_flag("coi");
-
-        Config {
-            root,
-            port,
-            cross_origin_isolation,
-        }
+        let cors = matches.get_flag("cors");
+        Config { root, port, cors }
     }
 
     /// Get the server root directory.
@@ -63,8 +58,8 @@ impl Config {
         self.port
     }
 
-    /// Get whether cross origin isolation is enabled.
-    pub fn cross_origin_isolation(&self) -> bool {
-        self.cross_origin_isolation
+    /// Get whether cross-origin resource sharing is enabled.
+    pub fn cors(&self) -> bool {
+        self.cors
     }
 }
