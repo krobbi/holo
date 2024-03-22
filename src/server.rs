@@ -36,7 +36,11 @@ fn serve_page(request: &Request, config: &Config) -> Page {
         path.push("index.html");
 
         if !path.is_file() {
-            return Page::Index(url.to_string());
+            return if config.index() {
+                Page::Index(url.to_string())
+            } else {
+                Page::Error(Status::NotFound)
+            };
         }
     } else if url.ends_with('/') {
         return Page::Error(Status::NotFound);

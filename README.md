@@ -41,6 +41,7 @@ working directory will be used.
 | Short | Long        | Arguments | Usage                                |
 | :---- | :---------- | :-------- | :----------------------------------- |
 | `-p`  | `--port`    | `<port>`  | TCP port [default: 8080]             |
+| `-i`  | `--index`   | _(None)_  | Serve automatic index pages          |
 | `-c`  | `--cors`    | _(None)_  | Enable cross-origin resource sharing |
 | `-h`  | `--help`    | _(None)_  | Print help                           |
 | `-V`  | `--version` | _(None)_  | Print version                        |
@@ -48,6 +49,10 @@ working directory will be used.
 If the `--port` option is not set, the default port of `8080` will be used.
 Ports below `1024` are likely to be reserved or require administrator
 privileges.
+
+If the `--index` flag is set, an automatic index page listing directories and
+files will be served when a directory without an `index.html` file is
+requested. If the flag is not set, a 404 page will be served instead.
 
 If the `--cors` flag is set, resources from outside the host machine will be
 allowed in webpages, but some JavaScript features will be disabled.
@@ -61,9 +66,14 @@ Serve files in the current working directory on port `8080`:
 holo
 ```
 
-Serve files in `etc/builds/web/` on port `8060`:
+Serve files in `etc/builds/web/` on port `8080`:
 ```shell
-holo etc/builds/web/ -p 8060
+holo etc/builds/web/
+```
+
+Serve files in `files/` on port `8080` with automatic index pages:
+```shell
+holo files -i
 ```
 
 Serve files in `C:\htdocs\` on port `80` with cross-origin resources:

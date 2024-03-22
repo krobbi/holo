@@ -10,6 +10,9 @@ pub struct Config {
     /// The TCP port.
     port: u16,
 
+    /// Whether to serve automatic index pages.
+    index: bool,
+
     /// Whether cross-origin resource sharing is enabled.
     cors: bool,
 }
@@ -29,6 +32,7 @@ impl Config {
                     .value_parser(value_parser!(u16))
                     .default_value("8080"),
             )
+            .arg(arg!(-i --index "Serve automatic index pages"))
             .arg(arg!(-c --cors "Enable cross-origin resource sharing"));
 
         let matches = cmd.get_matches_mut();
@@ -44,8 +48,15 @@ impl Config {
         }
 
         let port = matches.get_one::<u16>("port").unwrap().to_owned();
+        let index = matches.get_flag("index");
         let cors = matches.get_flag("cors");
-        Config { root, port, cors }
+
+        Config {
+            root,
+            port,
+            index,
+            cors,
+        }
     }
 
     /// Get the server root directory.
@@ -56,6 +67,11 @@ impl Config {
     /// Get the TCP port.
     pub fn port(&self) -> u16 {
         self.port
+    }
+
+    /// Get whether to serve automatic index pages.
+    pub fn index(&self) -> bool {
+        self.index
     }
 
     /// Get whether cross-origin resource sharing is enabled.
