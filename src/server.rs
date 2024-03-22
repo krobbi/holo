@@ -1,5 +1,5 @@
 use std::{
-    fs,
+    fs, io,
     path::{Path, PathBuf},
 };
 
@@ -47,9 +47,18 @@ fn serve_page(request: &Request, config: &Config) -> Page {
     }
 
     match fs::read(&path) {
-        Ok(content) => Page::File(new_mime_guess::from_path(&path).first_raw(), content),
-        Err(_) => Page::Error(Status::InternalServerError),
+        Ok(content) => {
+            let media_type = new_mime_guess::from_path(&path).first_raw();
+            Page::File(media_type, content)
+        }
+        Err(error) => serve_internal_error(&error),
     }
+}
+
+/// Serve an internal server error page using an I/O error.
+fn serve_internal_error(error: &io::Error) -> Page {
+    eprintln!("{error}");
+    Page::Error(Status::InternalServerError)
 }
 
 /// Resolve a path using a server root directory and a request URL.
