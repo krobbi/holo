@@ -37,7 +37,7 @@ fn serve_page(request: &Request, config: &Config) -> Page {
 
         if !path.is_file() {
             return if config.index() {
-                Page::Index(url.to_string())
+                Page::Index(url.to_string(), Vec::new())
             } else {
                 Page::Error(Status::NotFound)
             };
