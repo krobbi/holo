@@ -36,7 +36,7 @@ fn serve_page(request: &Request, config: &Config) -> Page {
         path.push("index.html");
 
         if !path.is_file() {
-            return Page::Error(Status::NotFound);
+            return Page::Index(url.to_string());
         }
     } else if url.ends_with('/') {
         return Page::Error(Status::NotFound);
