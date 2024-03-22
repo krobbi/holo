@@ -11,7 +11,6 @@ use std::{
 };
 
 use crate::config::Config;
-
 use packet::Packet;
 
 /// An HTTP response.

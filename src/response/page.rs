@@ -1,4 +1,5 @@
 use super::Status;
+use crate::server;
 
 /// An HTTP response's page.
 pub enum Page {
@@ -46,7 +47,7 @@ impl Page {
     }
 }
 
-/// Create a new index message body using an index URL.
+/// Create a new index message body using an index URL and entry names.
 fn index_body(url: &str, names: &[String]) -> Vec<u8> {
     static TEMPLATE: &str = include_str!("../../res/index.html");
 
@@ -71,7 +72,7 @@ fn index_body(url: &str, names: &[String]) -> Vec<u8> {
 /// Create a new index entry using an entry name.
 fn index_entry(name: &str) -> String {
     static TEMPLATE: &str = include_str!("../../res/entry.html");
-    let url = name.to_string();
+    let url = server::percent_encode(name);
     TEMPLATE.replace("{{url}}", &url).replace("{{name}}", name)
 }
 

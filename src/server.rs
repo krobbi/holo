@@ -9,6 +9,34 @@ use crate::{
     response::{Page, Response, Status},
 };
 
+/// Reserved HTTP characters, excluding slashes.
+const RESERVED_CHARS: &percent_encoding::AsciiSet = &percent_encoding::CONTROLS
+    .add(b' ')
+    .add(b'!')
+    .add(b'"')
+    .add(b'#')
+    .add(b'$')
+    .add(b'%')
+    .add(b'&')
+    .add(b'\'')
+    .add(b'(')
+    .add(b')')
+    .add(b'*')
+    .add(b'+')
+    .add(b',')
+    .add(b':')
+    .add(b';')
+    .add(b'=')
+    .add(b'?')
+    .add(b'@')
+    .add(b'[')
+    .add(b']');
+
+/// Percent encode a URL component.
+pub fn percent_encode(component: &str) -> String {
+    percent_encoding::utf8_percent_encode(component, RESERVED_CHARS).to_string()
+}
+
 /// Respond to a request.
 pub fn respond(request: &Request, config: &Config) -> Response {
     let page = serve_page(request, config);
