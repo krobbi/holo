@@ -8,9 +8,11 @@
 	<body>
 		<main role="main">
 			<h1>Index of {{url}}</h1>
-			<ul>
-				{{entries}}
-			</ul>
+			<nav aria-label="Directory" role="navigation">
+				<ul aria-label="Directory entry links">
+					{{entries}}
+				</ul>
+			</nav>
 		</main>
 	</body>
 </html>
