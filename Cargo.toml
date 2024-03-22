@@ -1,6 +1,6 @@
 [package]
 name = "holo"
-version = "1.0.0"
+version = "1.1.0"
 authors = ["Chris Roberts"]
 edition = "2021"
 description = "Basic HTTP server for local hosting."
