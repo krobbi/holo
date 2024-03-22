@@ -37,7 +37,19 @@ fn serve_page(request: &Request, config: &Config) -> Page {
 
         if !path.is_file() {
             return if config.index() {
-                Page::Index(url.to_string(), Vec::new())
+                let path = path.parent().unwrap();
+                let include_parent = url != "/";
+
+                let names = match list_dir(path, include_parent) {
+                    Ok(names) => names,
+                    Err(error) => return serve_internal_error(&error),
+                };
+
+                let url = percent_encoding::percent_decode_str(url)
+                    .decode_utf8_lossy()
+                    .to_string();
+
+                Page::Index(url, names)
             } else {
                 Page::Error(Status::NotFound)
             };
@@ -74,4 +86,35 @@ fn resolve_path(root: &Path, url: &str) -> Option<PathBuf> {
     } else {
         None
     }
+}
+
+/// List a directory, sorted by entry kind and name.
+fn list_dir(path: &Path, include_parent: bool) -> io::Result<Vec<String>> {
+    let mut dir_names = Vec::new();
+    let mut file_names = Vec::new();
+
+    for entry in fs::read_dir(path)? {
+        let entry = entry?;
+        let file_type = entry.file_type()?;
+        let mut file_name = entry.file_name().to_string_lossy().to_string();
+
+        if file_type.is_dir() {
+            file_name.push('/');
+            dir_names.push(file_name);
+        } else if file_type.is_file() {
+            file_names.push(file_name);
+        }
+    }
+
+    let mut names = Vec::new();
+
+    if include_parent {
+        names.push("..".to_string());
+    }
+
+    dir_names.sort_unstable();
+    file_names.sort_unstable();
+    names.append(&mut dir_names);
+    names.append(&mut file_names);
+    Ok(names)
 }
