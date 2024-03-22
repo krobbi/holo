@@ -2,16 +2,16 @@ use super::Status;
 
 /// An HTTP response's page.
 pub enum Page {
-    /// File with media type and content.
+    /// File with a media type and a message body.
     File(Option<&'static str>, Vec<u8>),
 
-    /// Index of URL.
+    /// Index of a URL.
     Index(String),
 
-    /// Redirect to URL.
+    /// Redirect to a URL.
     Redirect(String),
 
-    /// Error message.
+    /// Error message with a response status.
     Error(Status),
 }
 
@@ -33,31 +33,31 @@ impl Page {
         }
     }
 
-    /// Convert the page into content.
-    pub(super) fn into_content(self) -> Vec<u8> {
+    /// Convert the page into a message body.
+    pub(super) fn into_body(self) -> Vec<u8> {
         match self {
-            Page::File(_, content) => content,
-            Page::Index(url) => index_content(&url),
-            Page::Redirect(url) => redirect_content(&url),
-            Page::Error(status) => error_content(status),
+            Page::File(_, body) => body,
+            Page::Index(url) => index_body(&url),
+            Page::Redirect(url) => redirect_body(&url),
+            Page::Error(status) => error_body(status),
         }
     }
 }
 
-/// Create new index content using an index URL.
-fn index_content(url: &str) -> Vec<u8> {
+/// Create a new index message body using an index URL.
+fn index_body(url: &str) -> Vec<u8> {
     static TEMPLATE: &str = include_str!("../../res/index.html");
     TEMPLATE.replace("{{url}}", url).into_bytes()
 }
 
-/// Create new redirect content using a target URL.
-fn redirect_content(url: &str) -> Vec<u8> {
+/// Create a new redirect message body using a target URL.
+fn redirect_body(url: &str) -> Vec<u8> {
     static TEMPLATE: &str = include_str!("../../res/redirect.html");
     TEMPLATE.replace("{{url}}", url).into_bytes()
 }
 
-/// Create new error content from an error status.
-fn error_content(status: Status) -> Vec<u8> {
+/// Create a new error message body from an error status.
+fn error_body(status: Status) -> Vec<u8> {
     static TEMPLATE: &str = include_str!("../../res/error.html");
     let code = &status.code().to_string();
     let reason = status.reason();

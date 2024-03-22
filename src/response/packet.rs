@@ -1,33 +1,26 @@
 /// An HTTP response packet.
 pub(super) trait Packet {
-    /// Put a status line to the packet.
-    fn put_status_line(&mut self, code: u16, reason: &str) {
-        self.put_content(format!("HTTP/1.1 {code} {reason}\r\n").into_bytes());
-    }
+    /// Append a status line to the packet.
+    fn append_status_line(&mut self, code: u16, reason: &str);
 
-    /// Put a header to the packet.
-    fn put_header(&mut self, key: &str, value: &str) {
-        self.put_content(format!("{key}: {value}\r\n").into_bytes());
-    }
+    /// Append a response header field to the packet.
+    fn append_field(&mut self, key: &str, value: &str);
 
-    /// Put an end-of-headers marker to the packet.
-    fn put_end_of_headers(&mut self) {
-        self.put_bytes(b"\r\n");
-    }
-
-    /// Put content to the packet.
-    fn put_content(&mut self, content: Vec<u8>);
-
-    /// Put a byte slice to the packet.
-    fn put_bytes(&mut self, bytes: &[u8]);
+    /// Append a message body to the packet.
+    fn append_body(&mut self, body: Vec<u8>);
 }
 
 impl Packet for Vec<u8> {
-    fn put_content(&mut self, mut content: Vec<u8>) {
-        self.append(&mut content);
+    fn append_status_line(&mut self, code: u16, reason: &str) {
+        self.append(&mut format!("HTTP/1.1 {code} {reason}\r\n").into_bytes());
     }
 
-    fn put_bytes(&mut self, bytes: &[u8]) {
-        self.extend_from_slice(bytes);
+    fn append_field(&mut self, key: &str, value: &str) {
+        self.append(&mut format!("{key}: {value}\r\n").into_bytes());
+    }
+
+    fn append_body(&mut self, mut body: Vec<u8>) {
+        self.extend_from_slice(b"\r\n");
+        self.append(&mut body);
     }
 }

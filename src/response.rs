@@ -34,29 +34,28 @@ impl Response {
             let status = self.page.status();
             let code = status.code();
             let reason = status.reason();
-            packet.put_status_line(code, reason);
+            packet.append_status_line(code, reason);
         }
 
-        packet.put_header("Connection", "close");
+        packet.append_field("Connection", "close");
 
         if !config.cors() {
-            packet.put_header("Cross-Origin-Embedder-Policy", "require-corp");
-            packet.put_header("Cross-Origin-Opener-Policy", "same-origin");
+            packet.append_field("Cross-Origin-Embedder-Policy", "require-corp");
+            packet.append_field("Cross-Origin-Opener-Policy", "same-origin");
         }
 
         if let Page::Redirect(url) = &self.page {
-            packet.put_header("Location", url);
+            packet.append_field("Location", url);
         }
 
         if let Some(media_type) = self.page.media_type() {
-            packet.put_header("Content-Type", media_type);
+            packet.append_field("Content-Type", media_type);
         }
 
         {
-            let content = self.page.into_content();
-            packet.put_header("Content-Length", &content.len().to_string());
-            packet.put_end_of_headers();
-            packet.put_content(content);
+            let body = self.page.into_body();
+            packet.append_field("Content-Length", &body.len().to_string());
+            packet.append_body(body);
         }
 
         stream.write_all(&packet)

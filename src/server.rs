@@ -47,9 +47,9 @@ fn serve_page(request: &Request, config: &Config) -> Page {
     }
 
     match fs::read(&path) {
-        Ok(content) => {
+        Ok(body) => {
             let media_type = new_mime_guess::from_path(&path).first_raw();
-            Page::File(media_type, content)
+            Page::File(media_type, body)
         }
         Err(error) => serve_internal_error(&error),
     }
