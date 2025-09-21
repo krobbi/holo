@@ -1,5 +1,5 @@
 use std::{
-    fmt::{self, Display, Formatter},
+    fmt::{self, Display, Formatter, Write as _},
     io::{BufRead, BufReader, Read, Write},
     net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener, TcpStream},
 };
@@ -109,21 +109,22 @@ impl Request<'_> {
     /// Consumes the `Request` and sends a response to the client.
     pub fn try_respond(mut self, response: &impl Respond) -> Result<()> {
         let status = response.status();
-        let packet = format!(
+        let mut packet = format!(
             "HTTP/1.1 {} {}\r\n\
             Connection: close\r\n\
             Cross-Origin-Opener-Policy: same-origin\r\n\
             Cross-Origin-Embedder-Policy: require-corp\r\n\
-            Content-Type: text/plain; charset=utf-8\r\n\
-            Content-Length: 16\r\n\
-            \r\nHello, Holo v2!\n",
+            Content-Type: text/plain; charset=utf-8\r\n",
             status.code(),
             status.reason()
         );
 
-        self.stream
-            .write_all(packet.as_bytes())
-            .map_err(Error::ResponseSend)
+        let body = response.body();
+        let body = body.as_ref();
+        let _ = write!(packet, "Content-Length: {}\r\n\r\n", body.len());
+        let mut packet = packet.into_bytes();
+        packet.extend_from_slice(body);
+        self.stream.write_all(&packet).map_err(Error::ResponseSend)
     }
 }
 
@@ -131,6 +132,9 @@ impl Request<'_> {
 pub trait Respond {
     /// Returns the HTTP response [`Status`] associated with the object.
     fn status(&self) -> Status;
+
+    /// Returns the HTTP message body associated with the object.
+    fn body(&self) -> impl AsRef<[u8]>;
 }
 
 /// Decodes and returns the request URI of an HTTP GET request from a

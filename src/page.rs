@@ -12,4 +12,10 @@ impl Respond for Page {
             Self::Test => Status::Ok,
         }
     }
+
+    fn body(&self) -> impl AsRef<[u8]> {
+        match self {
+            Self::Test => "Hello from Page::Test!\n",
+        }
+    }
 }
