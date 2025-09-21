@@ -1,18 +1,6 @@
 # Holo
-_Basic HTTP server for local hosting._  
-__Copyright &copy; 2024 Chris Roberts__ (Krobbizoid).
-
-# Contents
-1. [Usage](#usage)
-   * [Arguments](#arguments)
-   * [Options](#options)
-   * [Examples](#examples)
-2. [Limitations](#limitations)
-3. [Dependencies](#dependencies)
-4. [License](#license)
-
-# Usage
-Holo is a basic HTTP server targeted at serving local files for testing.
+Holo is a simple HTTP server targeted at serving local files for testing.
+<!--
 Because of its focus on simplicity and privacy, it has some
 [limitations](#limitations) that may prevent it from doing what you want it to
 do.
@@ -97,9 +85,8 @@ Holo uses the following libraries:
 inference.
 * [percent-encoding](https://crates.io/crates/percent-encoding) - URL encoding
 and decoding.
+-->
 
 # License
-Holo is released under the MIT License:  
-https://krobbi.github.io/license/2024/mit.txt
-
-See [LICENSE.txt](/LICENSE.txt) for a full copy of the license text.
+Holo is released under the MIT License. See [LICENSE.txt](/LICENSE.txt) for a
+full copy of the license text.

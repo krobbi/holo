@@ -1,15 +1,13 @@
 [package]
 name = "holo"
 version = "1.1.0"
-authors = ["Chris Roberts"]
-edition = "2021"
-description = "Basic HTTP server for local hosting."
-repository = "https://github.com/krobbi/holo/"
+edition = "2024"
+description = "Simple HTTP server for local hosting"
+repository = "https://github.com/krobbi/holo"
 license = "MIT"
 keywords = ["http", "localhost", "server", "tcp", "web"]
 categories = [
   "command-line-utilities",
-  "development-tools",
   "filesystem",
   "network-programming",
   "web-programming::http-server",
@@ -17,13 +15,9 @@ categories = [
 publish = false
 
 [dependencies]
-clap = { version = "4.5.3", features = ["cargo"] }
-new_mime_guess = "4.0.1"
-percent-encoding = "2.3.1"
 
 [profile.release]
-codegen-units = 1
-lto = "fat"
-opt-level = 3
+strip = true
+lto = true
 panic = "abort"
-strip = "symbols"
+codegen-units = 1
