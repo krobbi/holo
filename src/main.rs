@@ -23,8 +23,8 @@ fn try_run() -> Result<()> {
     println!("Use 'Ctrl+C' to exit.");
 
     loop {
-        match server.try_accept() {
-            Ok(_) => println!("Request accepted!"),
+        match server.try_accept_request() {
+            Ok(request) => println!("Requested URI: '{}'", request.uri().escape_default()),
             Err(error) => error.print(),
         }
     }
