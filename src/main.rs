@@ -1,4 +1,8 @@
+mod http;
+
+use crate::http::Server;
+
 /// Runs Holo.
 fn main() {
-    println!("Hello, Holo v2!");
+    let _server = Server::new();
 }
