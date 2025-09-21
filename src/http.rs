@@ -119,6 +119,10 @@ impl Request<'_> {
             status.reason()
         );
 
+        if let Some(location) = response.location() {
+            let _ = write!(packet, "Location: {}\r\n", location.as_ref());
+        }
+
         if let Some(media_type) = response.media_type() {
             let _ = write!(packet, "Content-Type: {}\r\n", media_type.as_ref());
         }
@@ -137,6 +141,13 @@ pub trait Respond {
     /// Returns the HTTP response [`Status`] associated with the object.
     fn status(&self) -> Status {
         Status::default()
+    }
+
+    /// Returns the HTTP location header field associated with the object.
+    /// Returns [`None`] if the object should not be sent with a location header
+    /// field.
+    fn location(&self) -> Option<impl AsRef<str>> {
+        None::<&str>
     }
 
     /// Returns the media type associated with the object. Returns [`None`] if
