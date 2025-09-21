@@ -110,7 +110,6 @@ impl Request<'_> {
     }
 
     /// Returns the `Request`'s URI.
-    #[expect(dead_code)]
     pub fn uri(&self) -> &str {
         &self.uri
     }

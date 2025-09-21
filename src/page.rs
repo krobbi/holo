@@ -2,8 +2,8 @@ use crate::http::{Respond, Status};
 
 /// A page that can be sent as an HTTP response.
 pub enum Page {
-    /// A test `Page`.
-    Test,
+    /// A test `Page` for a [`Request`](crate::http::Request)'s URI.
+    Test(String),
 
     /// An error `Page` for an HTTP response [`Status`] code.
     Error(Status),
@@ -12,21 +12,21 @@ pub enum Page {
 impl Respond for Page {
     fn status(&self) -> Status {
         match self {
-            Self::Test => Status::default(),
+            Self::Test(_) => Status::default(),
             Self::Error(status) => *status,
         }
     }
 
     fn media_type(&self) -> Option<impl AsRef<str>> {
         match self {
-            Self::Test => Some("text/plain; charset=utf-8"),
+            Self::Test(_) => Some("text/plain; charset=utf-8"),
             Self::Error(_) => Some("text/html; charset=utf-8"),
         }
     }
 
     fn body(&self) -> impl AsRef<[u8]> {
         match self {
-            Self::Test => "Hello from Page::Test!\n".into(),
+            Self::Test(uri) => format!("Requested URI: '{}'\n", uri.escape_default()),
             Self::Error(status) => render_error(*status),
         }
     }
