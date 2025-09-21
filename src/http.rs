@@ -1,4 +1,7 @@
-use std::net::{Ipv4Addr, SocketAddr, TcpListener, TcpStream};
+use std::{
+    fmt::{self, Display, Formatter},
+    net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener, TcpStream},
+};
 
 use crate::error::{Error, Result};
 
@@ -8,7 +11,6 @@ pub struct Server {
     listener: TcpListener,
 
     /// The `Server`'s TCP/IP address.
-    #[expect(dead_code)]
     address: SocketAddr,
 }
 
@@ -35,6 +37,23 @@ impl Server {
             stream,
             client,
         })
+    }
+}
+
+impl Display for Server {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        const STANDARD_HTTP_PORT: u16 = 80;
+        f.write_str("http://")?;
+
+        match self.address.ip() {
+            IpAddr::V4(Ipv4Addr::LOCALHOST) => f.write_str("localhost"),
+            ip => ip.fmt(f),
+        }?;
+
+        match self.address.port() {
+            STANDARD_HTTP_PORT => Ok(()),
+            port => write!(f, ":{port}"),
+        }
     }
 }
 

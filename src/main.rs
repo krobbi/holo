@@ -19,7 +19,7 @@ fn main() -> ExitCode {
 /// Runs Holo.
 fn try_run() -> Result<()> {
     let server = Server::try_new()?;
-    println!("Serving files...");
+    println!("Serving files at '{server}'...");
     println!("Use 'Ctrl+C' to exit.");
 
     loop {
