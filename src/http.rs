@@ -113,11 +113,14 @@ impl Request<'_> {
             "HTTP/1.1 {} {}\r\n\
             Connection: close\r\n\
             Cross-Origin-Opener-Policy: same-origin\r\n\
-            Cross-Origin-Embedder-Policy: require-corp\r\n\
-            Content-Type: text/plain; charset=utf-8\r\n",
+            Cross-Origin-Embedder-Policy: require-corp\r\n",
             status.code(),
             status.reason()
         );
+
+        if let Some(media_type) = response.media_type() {
+            let _ = write!(packet, "Content-Type: {}\r\n", media_type.as_ref());
+        }
 
         let body = response.body();
         let body = body.as_ref();
@@ -132,6 +135,10 @@ impl Request<'_> {
 pub trait Respond {
     /// Returns the HTTP response [`Status`] associated with the object.
     fn status(&self) -> Status;
+
+    /// Returns the media type associated with the object. Returns [`None`] if
+    /// the object has no known media type.
+    fn media_type(&self) -> Option<impl AsRef<str>>;
 
     /// Returns the HTTP message body associated with the object.
     fn body(&self) -> impl AsRef<[u8]>;
