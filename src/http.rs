@@ -13,18 +13,22 @@ pub enum Status {
     /// The request succeeded.
     #[default]
     Ok = 200,
+
+    /// The client does not have access rights to the content.
+    Forbidden = 403,
 }
 
 impl Status {
     /// Returns the `Status`' code.
-    fn code(self) -> u16 {
+    pub fn code(self) -> u16 {
         self as u16
     }
 
     /// Returns the `Status`' reason phrase.
-    fn reason(self) -> &'static str {
+    pub fn reason(self) -> &'static str {
         match self {
             Self::Ok => "OK",
+            Self::Forbidden => "Forbidden",
         }
     }
 }
@@ -93,7 +97,6 @@ pub struct Request<'a> {
     stream: TcpStream,
 
     /// The client's TCP/IP address.
-    #[expect(dead_code)]
     client: SocketAddr,
 
     /// The `Request`'s URI.
@@ -101,6 +104,11 @@ pub struct Request<'a> {
 }
 
 impl Request<'_> {
+    /// Returns whether the `Request` was sent from the host machine.
+    pub fn is_local(&self) -> bool {
+        self.client.ip().is_loopback()
+    }
+
     /// Returns the `Request`'s URI.
     #[expect(dead_code)]
     pub fn uri(&self) -> &str {

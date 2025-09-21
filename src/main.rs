@@ -1,10 +1,11 @@
 mod error;
 mod http;
 mod page;
+mod router;
 
 use std::process::ExitCode;
 
-use crate::{error::Result, http::Server, page::Page};
+use crate::{error::Result, http::Server};
 
 /// Runs Holo and returns an [`ExitCode`].
 fn main() -> ExitCode {
@@ -32,7 +33,9 @@ fn try_run() -> Result<()> {
             }
         };
 
-        if let Err(error) = request.try_respond(&Page::Test) {
+        let page = router::find_page(&request);
+
+        if let Err(error) = request.try_respond(&page) {
             error.print();
         }
     }
