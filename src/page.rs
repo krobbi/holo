@@ -1,4 +1,4 @@
-use crate::http::{Respond, Status};
+use crate::http::Respond;
 
 /// A page that can be sent as an HTTP response.
 pub enum Page {
@@ -7,12 +7,6 @@ pub enum Page {
 }
 
 impl Respond for Page {
-    fn status(&self) -> Status {
-        match self {
-            Self::Test => Status::Ok,
-        }
-    }
-
     fn media_type(&self) -> Option<impl AsRef<str>> {
         match self {
             Self::Test => Some("text/html; charset=utf-8"),

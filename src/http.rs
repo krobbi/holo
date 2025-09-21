@@ -7,10 +7,11 @@ use std::{
 use crate::error::{Error, Result};
 
 /// An HTTP response status code.
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Default)]
 #[repr(u16)]
 pub enum Status {
     /// The request succeeded.
+    #[default]
     Ok = 200,
 }
 
@@ -134,11 +135,15 @@ impl Request<'_> {
 /// A trait for objects which can be sent as an HTTP response.
 pub trait Respond {
     /// Returns the HTTP response [`Status`] associated with the object.
-    fn status(&self) -> Status;
+    fn status(&self) -> Status {
+        Status::default()
+    }
 
     /// Returns the media type associated with the object. Returns [`None`] if
     /// the object has no known media type.
-    fn media_type(&self) -> Option<impl AsRef<str>>;
+    fn media_type(&self) -> Option<impl AsRef<str>> {
+        None::<&str>
+    }
 
     /// Returns the HTTP message body associated with the object.
     fn body(&self) -> impl AsRef<[u8]>;
