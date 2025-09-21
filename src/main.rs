@@ -1,9 +1,10 @@
 mod error;
 mod http;
+mod page;
 
 use std::process::ExitCode;
 
-use crate::{error::Result, http::Server};
+use crate::{error::Result, http::Server, page::Page};
 
 /// Runs Holo and returns an [`ExitCode`].
 fn main() -> ExitCode {
@@ -23,9 +24,16 @@ fn try_run() -> Result<()> {
     println!("Use 'Ctrl+C' to exit.");
 
     loop {
-        match server.try_accept_request() {
-            Ok(request) => println!("Requested URI: '{}'", request.uri().escape_default()),
-            Err(error) => error.print(),
+        let request = match server.try_accept_request() {
+            Ok(request) => request,
+            Err(error) => {
+                error.print();
+                continue;
+            }
+        };
+
+        if let Err(error) = request.try_respond(&Page::Test) {
+            error.print();
         }
     }
 }

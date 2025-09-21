@@ -1,10 +1,32 @@
 use std::{
     fmt::{self, Display, Formatter},
-    io::{BufRead, BufReader, Read},
+    io::{BufRead, BufReader, Read, Write},
     net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener, TcpStream},
 };
 
 use crate::error::{Error, Result};
+
+/// An HTTP response status code.
+#[derive(Clone, Copy)]
+#[repr(u16)]
+pub enum Status {
+    /// The request succeeded.
+    Ok = 200,
+}
+
+impl Status {
+    /// Returns the `Status`' code.
+    fn code(self) -> u16 {
+        self as u16
+    }
+
+    /// Returns the `Status`' reason phrase.
+    fn reason(self) -> &'static str {
+        match self {
+            Self::Ok => "OK",
+        }
+    }
+}
 
 /// An HTTP server.
 pub struct Server {
@@ -67,7 +89,6 @@ pub struct Request<'a> {
     server: &'a Server,
 
     /// The [`TcpStream`] for communicating with the client.
-    #[expect(dead_code)]
     stream: TcpStream,
 
     /// The client's TCP/IP address.
@@ -80,9 +101,36 @@ pub struct Request<'a> {
 
 impl Request<'_> {
     /// Returns the `Request`'s URI.
+    #[expect(dead_code)]
     pub fn uri(&self) -> &str {
         &self.uri
     }
+
+    /// Consumes the `Request` and sends a response to the client.
+    pub fn try_respond(mut self, response: &impl Respond) -> Result<()> {
+        let status = response.status();
+        let packet = format!(
+            "HTTP/1.1 {} {}\r\n\
+            Connection: close\r\n\
+            Cross-Origin-Opener-Policy: same-origin\r\n\
+            Cross-Origin-Embedder-Policy: require-corp\r\n\
+            Content-Type: text/plain; charset=utf-8\r\n\
+            Content-Length: 16\r\n\
+            \r\nHello, Holo v2!\n",
+            status.code(),
+            status.reason()
+        );
+
+        self.stream
+            .write_all(packet.as_bytes())
+            .map_err(Error::ResponseSend)
+    }
+}
+
+/// A trait for objects which can be sent as an HTTP response.
+pub trait Respond {
+    /// Returns the HTTP response [`Status`] associated with the object.
+    fn status(&self) -> Status;
 }
 
 /// Decodes and returns the request URI of an HTTP GET request from a

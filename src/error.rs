@@ -26,6 +26,9 @@ pub enum Error {
 
     /// An error caused by a request not being an HTTP GET request.
     RequestNotHttpGet,
+
+    /// An error caused by failing to send an HTTP response.
+    ResponseSend(io::Error),
 }
 
 impl Error {
@@ -42,7 +45,8 @@ impl error::Error for Error {
             Self::ServerOpen(error)
             | Self::ServerAddressQuery(error)
             | Self::Connect(error)
-            | Self::RequestRead(error) => Some(error),
+            | Self::RequestRead(error)
+            | Self::ResponseSend(error) => Some(error),
             Self::RequestNotHttpGet => None,
         }
     }
@@ -56,6 +60,7 @@ impl Display for Error {
             Self::Connect(error) => write!(f, "failed to connect: {error}"),
             Self::RequestRead(error) => write!(f, "failed to read request: {error}"),
             Self::RequestNotHttpGet => write!(f, "request is not an HTTP GET request"),
+            Self::ResponseSend(error) => write!(f, "failed to send response: {error}"),
         }
     }
 }
