@@ -4,7 +4,10 @@ use std::{
     net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener, TcpStream},
 };
 
-use crate::error::{Error, Result};
+use crate::{
+    config::Config,
+    error::{Error, Result},
+};
 
 /// An HTTP response status code.
 #[derive(Clone, Copy, Default)]
@@ -43,12 +46,13 @@ pub struct Server {
 }
 
 impl Server {
-    /// Creates a new `Server`. The returned server is bound to a TCP port and
-    /// ready to accept [`Request`]s. The server will be closed when the value
-    /// is dropped.
-    pub fn try_new() -> Result<Self> {
-        const PORT: u16 = 8080;
-        let listener = TcpListener::bind((Ipv4Addr::LOCALHOST, PORT)).map_err(Error::ServerOpen)?;
+    /// Creates a new `Server` from configuration data. The returned server is
+    /// bound to a TCP port and ready to accept [`Request`]s. The server will be
+    /// closed when the value is dropped.
+    pub fn try_new(config: &Config) -> Result<Self> {
+        let listener =
+            TcpListener::bind((Ipv4Addr::LOCALHOST, config.port())).map_err(Error::ServerOpen)?;
+
         let address = listener.local_addr().map_err(Error::ServerAddressQuery)?;
         Ok(Self { listener, address })
     }

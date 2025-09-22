@@ -1,3 +1,4 @@
+mod config;
 mod error;
 mod http;
 mod page;
@@ -5,7 +6,7 @@ mod router;
 
 use std::process::ExitCode;
 
-use crate::{error::Result, http::Server};
+use crate::{config::Config, error::Result, http::Server};
 
 /// Runs Holo and returns an [`ExitCode`].
 fn main() -> ExitCode {
@@ -13,14 +14,15 @@ fn main() -> ExitCode {
         Ok(()) => ExitCode::SUCCESS,
         Err(error) => {
             error.print();
-            ExitCode::FAILURE
+            error.exit_code()
         }
     }
 }
 
 /// Runs Holo.
 fn try_run() -> Result<()> {
-    let server = Server::try_new()?;
+    let config = Config::try_new()?;
+    let server = Server::try_new(&config)?;
     println!("Serving files at '{server}'...");
     println!("Use 'Ctrl+C' to exit.");
 
