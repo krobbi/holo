@@ -191,7 +191,7 @@ fn try_read_request_uri(stream: &TcpStream) -> Result<String> {
         return Err(Error::RequestNotHttpGet);
     }
 
-    Ok(trim_query_string(uri).into())
+    Ok(decode_uri(trim_query_string(uri)))
 }
 
 /// Returns a URI with any trailing query string removed.
@@ -200,4 +200,11 @@ fn trim_query_string(uri: &str) -> &str {
         None => uri,
         Some((prefix, _)) => prefix,
     }
+}
+
+/// Returns a URI with any percent encoding decoded.
+fn decode_uri(uri: &str) -> String {
+    percent_encoding::percent_decode_str(uri)
+        .decode_utf8_lossy()
+        .into()
 }

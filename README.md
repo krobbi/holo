@@ -77,14 +77,15 @@ LAN or the internet is being considered.
 * Holo runs on a single thread. HTTP requests are queued up and must be handled
 one at a time.
 * Request methods and headers are ignored.
+-->
 
 # Dependencies
 Holo uses the following libraries:
+* [percent-encoding](https://crates.io/crates/percent-encoding) - URI decoding.
+<!--
 * [clap](https://crates.io/crates/clap) - Command line argument parsing.
 * [new_mime_guess](https://crates.io/crates/new_mime_guess) - Media type
 inference.
-* [percent-encoding](https://crates.io/crates/percent-encoding) - URL encoding
-and decoding.
 -->
 
 # License
