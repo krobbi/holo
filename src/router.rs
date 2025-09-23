@@ -23,7 +23,10 @@ pub fn find_page(request: &Request) -> Page {
     }
 
     match fs::read(&path) {
-        Ok(contents) => Page::File(contents),
+        Ok(contents) => {
+            let media_type = mime_guess::from_path(&path).first_raw();
+            Page::File(media_type, contents)
+        }
         Err(_) => Page::Error(Status::InternalServerError),
     }
 }

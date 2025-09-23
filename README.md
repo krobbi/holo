@@ -88,11 +88,8 @@ intentional design choice to improve privacy.
 # Dependencies
 Holo uses the following libraries:
 * [clap](https://crates.io/crates/clap) - Command line argument parsing.
+* [mime_guess](https://crates.io/crates/mime_guess) - Media type inference.
 * [percent-encoding](https://crates.io/crates/percent-encoding) - URI decoding.
-<!--
-* [new_mime_guess](https://crates.io/crates/new_mime_guess) - Media type
-inference.
--->
 
 # License
 Holo is released under the MIT License. See [LICENSE.txt](/LICENSE.txt) for a

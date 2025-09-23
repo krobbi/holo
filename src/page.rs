@@ -4,8 +4,8 @@ use crate::http::{Respond, Status};
 
 /// A page that can be sent as an HTTP response.
 pub enum Page {
-    /// A file `Page` with contents.
-    File(Vec<u8>),
+    /// A file `Page` with an optional media type and contents.
+    File(Option<&'static str>, Vec<u8>),
 
     /// An error `Page` for an HTTP response [`Status`] code.
     Error(Status),
@@ -14,21 +14,21 @@ pub enum Page {
 impl Respond for Page {
     fn status(&self) -> Status {
         match self {
-            Self::File(_) => Status::default(),
+            Self::File(_, _) => Status::default(),
             Self::Error(status) => *status,
         }
     }
 
     fn media_type(&self) -> Option<impl AsRef<str>> {
         match self {
-            Self::File(_) => None,
+            Self::File(media_type, _) => *media_type,
             Self::Error(_) => Some("text/html; charset=utf-8"),
         }
     }
 
     fn body(&self) -> impl AsRef<[u8]> {
         match self {
-            Self::File(contents) => Cow::from(contents),
+            Self::File(_, contents) => Cow::from(contents),
             Self::Error(status) => render_error(*status).into(),
         }
     }
