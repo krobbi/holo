@@ -4,7 +4,7 @@ use std::{
 };
 
 use crate::{
-    http::{Request, Status},
+    http::{self, Request, Status},
     page::Page,
 };
 
@@ -23,6 +23,12 @@ pub fn find_page(request: &Request) -> Page {
     let is_dir_uri = uri.ends_with('/');
 
     if path.is_dir() {
+        if !is_dir_uri {
+            let mut uri = http::encode_uri(uri);
+            uri.push('/');
+            return Page::Redirect(uri);
+        }
+
         path.push("index.html");
 
         if !path.is_file() {

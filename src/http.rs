@@ -4,6 +4,8 @@ use std::{
     net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener, TcpStream},
 };
 
+use percent_encoding::AsciiSet;
+
 use crate::{
     config::Config,
     error::{Error, Result},
@@ -16,6 +18,9 @@ pub enum Status {
     /// The request succeeded.
     #[default]
     Ok = 200,
+
+    /// The URI of the requested resource has been changed temporarily.
+    Found = 302,
 
     /// The client does not have access rights to the content.
     Forbidden = 403,
@@ -37,6 +42,7 @@ impl Status {
     pub fn reason(self) -> &'static str {
         match self {
             Self::Ok => "OK",
+            Self::Found => "Found",
             Self::Forbidden => "Forbidden",
             Self::NotFound => "Not Found",
             Self::InternalServerError => "Internal Server Error",
@@ -191,6 +197,25 @@ pub trait Respond {
     fn body(&self) -> impl AsRef<[u8]>;
 }
 
+/// Percent encodes a URI.
+pub fn encode_uri(uri: &str) -> String {
+    static ENCODED_CHARS: &AsciiSet = &percent_encoding::NON_ALPHANUMERIC
+        .remove(b'-')
+        .remove(b'.')
+        .remove(b'/')
+        .remove(b'_')
+        .remove(b'~');
+
+    percent_encoding::utf8_percent_encode(uri, ENCODED_CHARS).to_string()
+}
+
+/// Percent decodes a URI.
+pub fn decode_uri(uri: &str) -> String {
+    percent_encoding::percent_decode_str(uri)
+        .decode_utf8_lossy()
+        .into()
+}
+
 /// Decodes and returns the request URI of an HTTP GET request from a
 /// [`TcpStream`].
 fn try_read_request_uri(stream: &TcpStream) -> Result<String> {
@@ -224,11 +249,4 @@ fn trim_query_string(uri: &str) -> &str {
         None => uri,
         Some((prefix, _)) => prefix,
     }
-}
-
-/// Returns a URI with any percent encoding decoded.
-fn decode_uri(uri: &str) -> String {
-    percent_encoding::percent_decode_str(uri)
-        .decode_utf8_lossy()
-        .into()
 }
