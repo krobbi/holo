@@ -12,22 +12,18 @@ variable. After this, you can use Holo from the command line in any directory:
 holo [OPTIONS] [ROOT]
 ```
 
-<!--
 By default, Holo will serve files from the current working directory at
-`http://localhost:8080`.
--->
-Holo will continue running until `Ctrl+C` is used to exit.
+`http://localhost:8080`. Holo will continue running until `Ctrl+C` is used to
+exit.
 
 ## Arguments
 | Argument | Usage                              |
 | :------- | :--------------------------------- |
 | `[ROOT]` | Server root directory [default: .] |
 
-<!--
-Holo can be given an optional argument representing the path to serve files
-from. The path must be an existing directory. If no path is given, the current
-working directory will be used.
--->
+Holo can be given an optional argument representing the path to the root
+directory for serving files. The path must be an existing directory. If no path
+is given, then current working directory is used.
 
 ## Options
 | Short | Long        | Arguments | Usage                                |
@@ -58,18 +54,18 @@ allowed in webpages, but some JavaScript features will be disabled.
 If the `--help` or `--version` flag is set, then Holo will print information
 but not perform any action.
 
-<!--
 ## Examples
-Serve files in the current working directory on port `8080`:
+Serve files from the current working directory on port `8080`:
 ```shell
 holo
 ```
 
-Serve files in `etc/builds/web/` on port `8080`:
+Serve files from `etc/builds/web/` on port `8080`:
 ```shell
 holo etc/builds/web/
 ```
 
+<!--
 Serve files in `files/` on port `8080` with automatic index pages:
 ```shell
 holo files -i

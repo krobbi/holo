@@ -19,6 +19,12 @@ pub enum Status {
 
     /// The client does not have access rights to the content.
     Forbidden = 403,
+
+    /// The server cannot find the requested resource.
+    NotFound = 404,
+
+    /// The server has encountered a situation it does not know how to handle.
+    InternalServerError = 500,
 }
 
 impl Status {
@@ -32,12 +38,17 @@ impl Status {
         match self {
             Self::Ok => "OK",
             Self::Forbidden => "Forbidden",
+            Self::NotFound => "Not Found",
+            Self::InternalServerError => "Internal Server Error",
         }
     }
 }
 
 /// An HTTP server.
-pub struct Server {
+pub struct Server<'a> {
+    /// The `Server`'s configuration data.
+    config: &'a Config,
+
     /// The [`TcpListener`] listening for [`Request`]s over TCP.
     listener: TcpListener,
 
@@ -45,16 +56,21 @@ pub struct Server {
     address: SocketAddr,
 }
 
-impl Server {
+impl<'a> Server<'a> {
     /// Creates a new `Server` from configuration data. The returned server is
     /// bound to a TCP port and ready to accept [`Request`]s. The server will be
     /// closed when the value is dropped.
-    pub fn try_new(config: &Config) -> Result<Self> {
+    pub fn try_new(config: &'a Config) -> Result<Self> {
         let listener =
             TcpListener::bind((Ipv4Addr::LOCALHOST, config.port())).map_err(Error::ServerOpen)?;
 
         let address = listener.local_addr().map_err(Error::ServerAddressQuery)?;
-        Ok(Self { listener, address })
+
+        Ok(Self {
+            config,
+            listener,
+            address,
+        })
     }
 
     /// Accepts a new incoming [`Request`]. The returned request is bound to a
@@ -74,7 +90,7 @@ impl Server {
     }
 }
 
-impl Display for Server {
+impl Display for Server<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         const STANDARD_HTTP_PORT: u16 = 80;
         f.write_str("http://")?;
@@ -94,8 +110,7 @@ impl Display for Server {
 /// An HTTP request received from a client.
 pub struct Request<'a> {
     /// The [`Server`] that received the `Request`.
-    #[expect(dead_code)]
-    server: &'a Server,
+    server: &'a Server<'a>,
 
     /// The [`TcpStream`] for communicating with the client.
     stream: TcpStream,
@@ -108,6 +123,11 @@ pub struct Request<'a> {
 }
 
 impl Request<'_> {
+    /// Returns the configuration data associated with the `Request`.
+    pub fn config(&self) -> &Config {
+        self.server.config
+    }
+
     /// Returns whether the `Request` was sent from the host machine.
     pub fn is_local(&self) -> bool {
         self.client.ip().is_loopback()
