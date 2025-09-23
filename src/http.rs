@@ -149,12 +149,17 @@ impl Request<'_> {
         let status = response.status();
         let mut packet = format!(
             "HTTP/1.1 {} {}\r\n\
-            Connection: close\r\n\
-            Cross-Origin-Opener-Policy: same-origin\r\n\
-            Cross-Origin-Embedder-Policy: require-corp\r\n",
+            Connection: close\r\n",
             status.code(),
             status.reason()
         );
+
+        if self.config().is_cross_origin_isolated() {
+            packet.push_str(
+                "Cross-Origin-Opener-Policy: same-origin\r\n\
+                Cross-Origin-Embedder-Policy: require-corp\r\n",
+            );
+        }
 
         if let Some(location) = response.location() {
             let _ = write!(packet, "Location: {}\r\n", location.as_ref());

@@ -3,7 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use clap::{Parser, ValueHint};
+use clap::{ArgAction, Parser, ValueHint};
 
 use crate::error::{Error, Result};
 
@@ -29,6 +29,12 @@ impl Config {
     pub fn port(&self) -> u16 {
         self.args.port
     }
+
+    /// Returns whether to serve HTTP response header fields for cross-origin
+    /// isolation.
+    pub fn is_cross_origin_isolated(&self) -> bool {
+        self.args.is_cross_origin_isolated
+    }
 }
 
 /// Command line arguments.
@@ -40,13 +46,22 @@ struct Args {
         value_hint(ValueHint::DirPath),
         value_parser = parse_root,
         help = "Server root directory",
-        default_value = "."
+        default_value = ".",
     )]
     root: PathBuf,
 
     /// The desired TCP port.
     #[arg(help = "TCP port", short, long, default_value_t = 8080)]
     port: u16,
+
+    /// Whether to serve HTTP response header fields for cross-origin isolation.
+    #[arg(
+        id = "no-isolation",
+        action = ArgAction::SetFalse,
+        help = "Disable cross-origin isolation",
+        long,
+    )]
+    is_cross_origin_isolated: bool,
 }
 
 /// Parses a canonical path to a root directory.

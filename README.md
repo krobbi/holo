@@ -26,14 +26,14 @@ directory for serving files. The path must be an existing directory. If no path
 is given, then current working directory is used.
 
 ## Options
-| Short | Long        | Arguments | Usage                                |
-| :---- | :---------- | :-------- | :----------------------------------- |
-| `-p`  | `--port`    | `<PORT>`  | TCP port [default: 8080]             |
-| `-h`  | `--help`    | _(None)_  | Print help                           |
-| `-V`  | `--version` | _(None)_  | Print version                        |
+| Short    | Long             | Arguments | Usage                          |
+| :------- | :--------------- | :-------- | :----------------------------- |
+| `-p`     | `--port`         | `<PORT>`  | TCP port [default: 8080]       |
+| _(None)_ | `--no-isolation` | _(None)_  | Disable cross-origin isolation |
+| `-h`     | `--help`         | _(None)_  | Print help                     |
+| `-V`     | `--version`      | _(None)_  | Print version                  |
 <!--
-| `-i`  | `--index`   | _(None)_  | Serve automatic index pages          |
-| `-c`  | `--cors`    | _(None)_  | Enable cross-origin resource sharing |
+| `-i`     | `--index`        | _(None)_  | Serve automatic index pages    |
 -->
 
 If the `--port` option is not set, then a default port of `8080` will be used.
@@ -46,10 +46,12 @@ including the port.
 If the `--index` flag is set, an automatic index page listing directories and
 files will be served when a directory without an `index.html` file is
 requested. If the flag is not set, a 404 page will be served instead.
-
-If the `--cors` flag is set, resources from outside the host machine will be
-allowed in webpages, but some JavaScript features will be disabled.
 -->
+
+If the `--no-isolation` flag is set, then the `Cross-Origin-Opener-Policy` and
+`Cross-Origin-Embedder-Policy` HTTP response header fields required for
+[cross-origin isolation](https://developer.mozilla.org/en-US/docs/Web/API/Window/crossOriginIsolated)
+will not be served.
 
 If the `--help` or `--version` flag is set, then Holo will print information
 but not perform any action.
@@ -66,16 +68,17 @@ holo etc/builds/web/
 ```
 
 <!--
-Serve files in `files/` on port `8080` with automatic index pages:
+Serve files from `files/` on port `8080` with automatic index pages:
 ```shell
 holo files -i
 ```
-
-Serve files in `C:\htdocs\` on port `80` with cross-origin resources:
-```shell
-holo C:\htdocs -p 80 -c
-```
 -->
+
+Serve files from `C:\htdocs\` on port `80` with cross-origin isolation
+disabled:
+```shell
+holo C:\htdocs -p 80 --no-isolation
+```
 
 # Limitations
 * Clients other than the host machine are served 403 error pages. This is an
