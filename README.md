@@ -9,7 +9,7 @@ To use Holo, build it with `cargo build --release` and move the executable from
 `target/release/holo(.exe)` to a directory listed in the `PATH` environment
 variable. After this, you can use Holo from the command line in any directory:
 ```shell
-holo [OPTIONS]
+holo [OPTIONS] [ROOT]
 ```
 
 <!--
@@ -18,12 +18,12 @@ By default, Holo will serve files from the current working directory at
 -->
 Holo will continue running until `Ctrl+C` is used to exit.
 
-<!--
 ## Arguments
 | Argument | Usage                              |
 | :------- | :--------------------------------- |
-| `[root]` | Server root directory [default: .] |
+| `[ROOT]` | Server root directory [default: .] |
 
+<!--
 Holo can be given an optional argument representing the path to serve files
 from. The path must be an existing directory. If no path is given, the current
 working directory will be used.

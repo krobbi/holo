@@ -24,6 +24,7 @@ fn try_run() -> Result<()> {
     let config = Config::try_new()?;
     let server = Server::try_new(&config)?;
     println!("Serving files at '{server}'...");
+    println!("Root: '{}'", config.root().display());
     println!("Use 'Ctrl+C' to exit.");
 
     loop {
