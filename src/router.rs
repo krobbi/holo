@@ -14,11 +14,21 @@ pub fn find_page(request: &Request) -> Page {
         return Page::Error(Status::Forbidden);
     }
 
-    let Some(path) = resolve_path(request.config().root(), request.uri()) else {
+    let uri = request.uri();
+
+    let Some(mut path) = resolve_path(request.config().root(), uri) else {
         return Page::Error(Status::NotFound);
     };
 
-    if !path.is_file() {
+    let is_dir_uri = uri.ends_with('/');
+
+    if path.is_dir() {
+        path.push("index.html");
+
+        if !path.is_file() {
+            return Page::Error(Status::NotFound);
+        }
+    } else if is_dir_uri {
         return Page::Error(Status::NotFound);
     }
 
