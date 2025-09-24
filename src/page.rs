@@ -1,4 +1,7 @@
-use std::borrow::Cow;
+use std::{
+    borrow::Cow,
+    fmt::{self, Display, Formatter, Write},
+};
 
 use crate::http::{self, Respond, Status};
 
@@ -50,9 +53,29 @@ impl Respond for Page {
     }
 }
 
+/// Text to be escaped for use in HTML.
+struct HtmlText<'a>(&'a str);
+
+impl Display for HtmlText<'_> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        for char in self.0.chars() {
+            match char {
+                '"' => f.write_str("&quot;"),
+                '&' => f.write_str("&amp;"),
+                '\'' => f.write_str("&#39;"),
+                '<' => f.write_str("&lt;"),
+                '>' => f.write_str("&gt;"),
+                char => f.write_char(char),
+            }?;
+        }
+
+        Ok(())
+    }
+}
+
 /// Renders an index HTML document from a URI.
 fn render_index(uri: &str) -> Vec<u8> {
-    let title = format!("Index of {uri}");
+    let title = format!("Index of {}", HtmlText(uri));
     let content = "<p><strong>TODO:</strong> Implement directory listing.</p>";
     render_html(&title, content)
 }
@@ -60,9 +83,11 @@ fn render_index(uri: &str) -> Vec<u8> {
 /// Renders a redirect HTML document from an encoded URI.
 fn render_redirect(uri: &str) -> Vec<u8> {
     let title = "Redirecting";
-    let display_uri = http::decode_uri(uri);
-    let content =
-        format!("<p>You are being redirected to <a href=\"{uri}\">{display_uri}</a>.</p>");
+
+    let content = format!(
+        "<p>You are being redirected to <a href=\"{uri}\">{}</a>.</p>",
+        HtmlText(&http::decode_uri(uri))
+    );
 
     render_html(title, &content)
 }
