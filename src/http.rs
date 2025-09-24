@@ -12,11 +12,10 @@ use crate::{
 };
 
 /// An HTTP response status code.
-#[derive(Clone, Copy, Default)]
+#[derive(Clone, Copy)]
 #[repr(u16)]
 pub enum Status {
     /// The request succeeded.
-    #[default]
     Ok = 200,
 
     /// The URI of the requested resource has been changed temporarily.
@@ -182,7 +181,7 @@ impl Request<'_> {
 pub trait Respond {
     /// Returns the HTTP response [`Status`] associated with the object.
     fn status(&self) -> Status {
-        Status::default()
+        Status::Ok
     }
 
     /// Returns the HTTP location header field associated with the object.

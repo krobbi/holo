@@ -17,7 +17,7 @@ pub enum Page {
 impl Respond for Page {
     fn status(&self) -> Status {
         match self {
-            Self::File(_, _) => Status::default(),
+            Self::File(_, _) => Status::Ok,
             Self::Redirect(_) => Status::Found,
             Self::Error(status) => *status,
         }
