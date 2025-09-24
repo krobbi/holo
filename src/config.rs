@@ -30,6 +30,11 @@ impl Config {
         self.args.port
     }
 
+    /// Returns whether to serve automatic index pages.
+    pub fn is_serving_index_pages(&self) -> bool {
+        self.args.is_serving_index_pages
+    }
+
     /// Returns whether to serve HTTP response header fields for cross-origin
     /// isolation.
     pub fn is_cross_origin_isolated(&self) -> bool {
@@ -53,6 +58,10 @@ struct Args {
     /// The desired TCP port.
     #[arg(help = "TCP port", short, long, default_value_t = 8080)]
     port: u16,
+
+    /// Whether to serve automatic index pages.
+    #[arg(id = "index", help = "Serve automatic index pages", short, long)]
+    is_serving_index_pages: bool,
 
     /// Whether to serve HTTP response header fields for cross-origin isolation.
     #[arg(

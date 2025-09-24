@@ -14,9 +14,10 @@ pub fn find_page(request: &Request) -> Page {
         return Page::Error(Status::Forbidden);
     }
 
+    let config = request.config();
     let uri = request.uri();
 
-    let Some(mut path) = resolve_path(request.config().root(), uri) else {
+    let Some(mut path) = resolve_path(config.root(), uri) else {
         return Page::Error(Status::NotFound);
     };
 
@@ -27,6 +28,10 @@ pub fn find_page(request: &Request) -> Page {
             let mut uri = http::encode_uri(uri);
             uri.push('/');
             return Page::Redirect(uri);
+        }
+
+        if config.is_serving_index_pages() {
+            return Page::Index(uri.into());
         }
 
         path.push("index.html");

@@ -29,12 +29,10 @@ is given, then current working directory is used.
 | Short    | Long             | Arguments | Usage                          |
 | :------- | :--------------- | :-------- | :----------------------------- |
 | `-p`     | `--port`         | `<PORT>`  | TCP port [default: 8080]       |
+| `-i`     | `--index`        | _(None)_  | Serve automatic index pages    |
 | _(None)_ | `--no-isolation` | _(None)_  | Disable cross-origin isolation |
 | `-h`     | `--help`         | _(None)_  | Print help                     |
 | `-V`     | `--version`      | _(None)_  | Print version                  |
-<!--
-| `-i`     | `--index`        | _(None)_  | Serve automatic index pages    |
--->
 
 If the `--port` option is not set, then a default port of `8080` will be used.
 Ports below `1024` are likely to be reserved or require administrator
@@ -42,11 +40,9 @@ privileges. The operating system may assign a different port to the given
 option (especially if it is `0`), but Holo will print a URL to connect to
 including the port.
 
-<!--
-If the `--index` flag is set, an automatic index page listing directories and
-files will be served when a directory without an `index.html` file is
-requested. If the flag is not set, a 404 page will be served instead.
--->
+If the `--index` flag is set, then automatic index pages listing files and
+directories will be served instead of `index.html` when a directory is
+requested.
 
 If the `--no-isolation` flag is set, then the `Cross-Origin-Opener-Policy` and
 `Cross-Origin-Embedder-Policy` HTTP response header fields required for
@@ -67,12 +63,10 @@ Serve files from `etc/builds/web/` on port `8080`:
 holo etc/builds/web/
 ```
 
-<!--
 Serve files from `files/` on port `8080` with automatic index pages:
 ```shell
 holo files -i
 ```
--->
 
 Serve files from `C:\htdocs\` on port `80` with cross-origin isolation
 disabled:
