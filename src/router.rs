@@ -47,12 +47,12 @@ pub fn find_page(request: &Request) -> Page {
         return Page::Error(Status::NotFound);
     }
 
-    match fs::read(&path) {
+    match fs::read(&path).map_err(Error::FileRead) {
         Ok(contents) => {
             let media_type = mime_guess::from_path(&path).first_raw();
             Page::File(media_type, contents)
         }
-        Err(_) => Page::Error(Status::InternalServerError),
+        Err(error) => error_page(&error),
     }
 }
 
@@ -69,7 +69,7 @@ fn list_dir(path: &Path) -> Result<Vec<String>> {
     let mut dir_names = Vec::new();
     let mut file_names = Vec::new();
 
-    for entry in fs::read_dir(path).map_err(Error::DirRead)? {
+    for entry in path.read_dir().map_err(Error::DirRead)? {
         let entry = entry.map_err(Error::DirRead)?;
         let file_type = entry.file_type().map_err(Error::DirRead)?;
         let mut name = entry.file_name().to_string_lossy().to_string();

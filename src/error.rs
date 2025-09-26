@@ -38,6 +38,9 @@ pub enum Error {
     /// An `Error` caused by a request not being an HTTP GET request.
     RequestNotHttpGet,
 
+    /// An `Error` caused by failing to read a file.
+    FileRead(io::Error),
+
     /// An `Error` caused by failing to read a directory.
     DirRead(io::Error),
 
@@ -73,6 +76,7 @@ impl error::Error for Error {
             | Self::ServerAddressQuery(error)
             | Self::Connect(error)
             | Self::RequestRead(error)
+            | Self::FileRead(error)
             | Self::DirRead(error)
             | Self::ResponseSend(error) => Some(error),
             Self::RootNotDirectory | Self::RequestNotHttpGet => None,
@@ -91,6 +95,7 @@ impl Display for Error {
             Self::Connect(error) => write!(f, "failed to connect: {error}"),
             Self::RequestRead(error) => write!(f, "failed to read request: {error}"),
             Self::RequestNotHttpGet => f.write_str("request is not an HTTP GET request"),
+            Self::FileRead(error) => write!(f, "failed to read file: {error}"),
             Self::DirRead(error) => write!(f, "failed to read directory: {error}"),
             Self::ResponseSend(error) => write!(f, "failed to send response: {error}"),
         }
