@@ -6,7 +6,7 @@ use std::{
     result,
 };
 
-/// A specialized [`Result`](result::Result) type for Holo.
+/// A specialized [`Result`][result::Result] type for Holo.
 pub type Result<T> = result::Result<T, Error>;
 
 /// An error caught by Holo.
@@ -15,18 +15,18 @@ pub enum Error {
     /// A command line argument parsing error or a help or version message.
     Command(clap::Error),
 
-    /// An `Error` caused by the root [`Path`](std::path::Path) not existing.
+    /// An `Error` caused by the root [`Path`][std::path::Path] not existing.
     RootNotExist(io::Error),
 
-    /// An `Error` caused by the root [`Path`](std::path::Path) not being a
+    /// An `Error` caused by the root [`Path`][std::path::Path] not being a
     /// directory.
     RootNotDirectory,
 
-    /// An `Error` caused by failing to open a [`Server`](crate::http::Server).
+    /// An `Error` caused by failing to open a [`Server`][crate::http::Server].
     ServerOpen(io::Error),
 
     /// An `Error` caused by failing to query a
-    /// [`Server`](crate::http::Server)'s TCP/IP address.
+    /// [`Server`][crate::http::Server]'s TCP/IP address.
     ServerAddressQuery(io::Error),
 
     /// An `Error` caused by failing to establish a connection with a client.
