@@ -4,6 +4,7 @@ use std::{
 };
 
 use crate::{
+    error::{Error, Result},
     http::{self, Request, Status},
     page::Page,
 };
@@ -31,7 +32,10 @@ pub fn find_page(request: &Request) -> Page {
         }
 
         if config.is_serving_index_pages() {
-            return Page::Index(uri.into());
+            return match list_dir(&path) {
+                Ok(names) => Page::Index(uri.into(), names),
+                Err(error) => error_page(&error),
+            };
         }
 
         path.push("index.html");
@@ -57,4 +61,35 @@ pub fn find_page(request: &Request) -> Page {
 fn resolve_path(root: &Path, uri: &str) -> Option<PathBuf> {
     let path = root.join(uri.trim_start_matches('/')).canonicalize().ok()?;
     path.starts_with(root).then_some(path)
+}
+
+/// Returns a sorted [`Vec`] of directory and file names from a directory
+/// [`Path`].
+fn list_dir(path: &Path) -> Result<Vec<String>> {
+    let mut dir_names = Vec::new();
+    let mut file_names = Vec::new();
+
+    for entry in fs::read_dir(path).map_err(Error::DirRead)? {
+        let entry = entry.map_err(Error::DirRead)?;
+        let file_type = entry.file_type().map_err(Error::DirRead)?;
+        let mut name = entry.file_name().to_string_lossy().to_string();
+
+        if file_type.is_dir() {
+            name.push('/');
+            dir_names.push(name);
+        } else if file_type.is_file() {
+            file_names.push(name);
+        }
+    }
+
+    dir_names.sort_unstable();
+    file_names.sort_unstable();
+    dir_names.append(&mut file_names);
+    Ok(dir_names)
+}
+
+/// Prints an [`Error`] and returns an internal server error [`Page`].
+fn error_page(error: &Error) -> Page {
+    error.print();
+    Page::Error(Status::InternalServerError)
 }
